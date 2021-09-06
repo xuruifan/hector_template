@@ -6,3 +6,4 @@ out/
 test_run_dir/
 .coursier/
 build/
+.metals

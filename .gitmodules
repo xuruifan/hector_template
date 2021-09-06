@@ -1,0 +1,3 @@
+[submodule "berkeley-hardfloat"]
+	path = berkeley-hardfloat
+	url = git@github.com:kix6lj/berkeley-hardfloat.git
