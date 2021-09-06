@@ -108,5 +108,6 @@ object Elaborate extends App {
   stage.emitVerilog(new FMul64)
   stage.emitVerilog(new FMul64)
   stage.emitVerilog(new FMul32)
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new ReadWriteMem(1024))))
 }
 
