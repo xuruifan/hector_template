@@ -9,7 +9,7 @@ import mill.scalalib.TestModule.Utest
 import mill.bsp._
 
 val defaultVersions = Map(
-  "chisel3" -> "3.3-SNAPSHOT",
+  "chisel3" -> "3.4-SNAPSHOT",
 )
 
 def getVersion(dep: String, org: String = "edu.berkeley.cs") = {
@@ -17,10 +17,12 @@ def getVersion(dep: String, org: String = "edu.berkeley.cs") = {
   ivy"$org::$dep:$version"
 }
 
-object hardfloat extends ScalaModule with SbtModule with PublishModule { m =>
+object hardfloat extends ScalaModule with SbtModule { m =>
   def scalaVersion = "2.12.8"
   // different scala version shares same sources
   // mill use foo/2.11.12 foo/2.12.11 as millSourcePath by default
+  //override def millSourcePath = super.millSourcePath / os.up / "berkeley-hardfloat"
+  override def millSourcePath = super.millSourcePath / os.up / "berkeley-hardfloat"
 
   def chisel3Module: Option[PublishModule] = None
 
@@ -47,23 +49,10 @@ object hardfloat extends ScalaModule with SbtModule with PublishModule { m =>
     def ivyDeps = Agg(ivy"org.scalatest::scalatest:3.2.0")
     def testFrameworks = Seq("org.scalatest.tools.Framework")
   }
-
-  def pomSettings = PomSettings(
-    description = artifactName(),
-    organization = "edu.berkeley.cs",
-    url = "http://chisel.eecs.berkeley.edu",
-    licenses = Seq(License.`BSD-3-Clause`),
-    versionControl = VersionControl.github("ucb-bar", "berkeley-hardfloat"),
-    developers = Seq(
-      Developer("jhauser-ucberkeley", "John Hauser", "https://www.colorado.edu/faculty/hauser/about/"),
-      Developer("aswaterman", "Andrew Waterman", "https://aspire.eecs.berkeley.edu/author/waterman/"),
-      Developer("yunsup", "Yunsup Lee", "https://aspire.eecs.berkeley.edu/author/yunsup/")
-    )
-  )
 }
 
 object playground extends ScalaModule with ScalafmtModule { m =>
-  def moduleDeps = Seq(hardfloat)
+  override def moduleDeps = Seq(hardfloat)
   override def scalaVersion = "2.12.13"
   override def scalacOptions = Seq(
     "-Xsource:2.11",
@@ -86,6 +75,7 @@ object playground extends ScalaModule with ScalafmtModule { m =>
     override def ivyDeps = m.ivyDeps() ++ Agg(
       ivy"com.lihaoyi::utest:0.7.10",
       ivy"edu.berkeley.cs::chiseltest:0.3.3",
+      ivy"edu.berkeley.cs::chisel-iotesters:1.5.3"
     )
   }
 }
