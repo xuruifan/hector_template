@@ -144,10 +144,12 @@ class Branch(size: Int = 32) extends MultiIOModule {
 
   join.pValid(0) := condition.valid
   join.pValid(1) := dataIn.valid
-  join.nReady := (dataOut(1).ready & (!join.valid)) | (dataOut(0).ready & join.valid)
+  //  join.nReady := (dataOut(1).ready & (!join.valid)) | (dataOut(0).ready & join.valid)
+  join.nReady := (dataOut(1).ready & !condition.bits) | (dataOut(0).ready & condition.bits)
 
   dataOut(1).valid := (!condition.bits) & join.valid
   dataOut(0).valid := (condition.bits) & join.valid
+  //  condition.ready := (dataOut(1).ready & !condition.bits) | (dataOut(0).ready & condition.bits)
   condition.ready := join.ready(0)
   dataIn.ready := join.ready(1)
 

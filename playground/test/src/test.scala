@@ -6,104 +6,215 @@ import utest._
 import testing._
 import chisel3.experimental._
 import hls._
+import scala.util.Random
+import chiseltest.internal.{VerilatorBackendAnnotation, WriteVcdAnnotation}
 
-class main extends MultiIOModule {
-  val var0 = IO(Flipped(DecoupledIO(UInt(32.W))))
-  val var1 = IO(DecoupledIO(UInt(32.W)))
-  var1 := DontCare
-  val m1 = Module(new Merge()())
-  val var2 = m1.dataIn apply 0
-  var2 := DontCare
-  val var3 = m1.dataIn apply 1
-  var3 := DontCare
-  val var4 = m1.dataOut
-  var4 := DontCare
-  val m2 = Module(new Merge()())
-  val var5 = m2.dataIn apply 0
-  var5 := DontCare
-  val var6 = m2.dataIn apply 1
-  var6 := DontCare
-  val var7 = m2.dataOut
-  var7 := DontCare
-  val f1 = Module(new Fork()(3))
-  val var8 = f1.dataIn
-  var8 := DontCare
-  val var9 = f1.dataOut apply 0
-  var9 := DontCare
-  val var10 = f1.dataOut apply 1
-  var10 := DontCare
-  val var11 = f1.dataOut apply 2
-  var11 := DontCare
-  val f2 = Module(new Fork()())
-  val var12 = f2.dataIn
-  var12 := DontCare
-  val var13 = f2.dataOut apply 0
-  var13 := DontCare
-  val var14 = f2.dataOut apply 1
-  var14 := DontCare
-  val b1 = Module(new Branch())
-  val var15 = b1.condition
-  var15 := DontCare
-  val var16 = b1.dataIn
-  var16 := DontCare
-  val var17 = b1.dataOut apply 0
-  var17 := DontCare
-  val var18 = b1.dataOut apply 1
-  var18 := DontCare
-  val b2 = Module(new Branch())
-  val var19 = b2.condition
-  var19 := DontCare
-  val var20 = b2.dataIn
-  var20 := DontCare
-  val var21 = b2.dataOut apply 0
-  var21 := DontCare
-  val var22 = b2.dataOut apply 1
-  var22 := DontCare
-  val eq = Module(new GreaterthanIDynamic())
-  val var23 = eq.operand0
-  var23 := DontCare
-  val var24 = eq.operand1
-  var24 := DontCare
-  val var25 = eq.result
-  var25 := DontCare
-  val a1 = Module(new AddIDynamic())
-  val var26 = a1.operand0
-  var26 := DontCare
-  val var27 = a1.operand1
-  var27 := DontCare
-  val var28 = a1.result
-  var28 := DontCare
-  val a2 = Module(new AddIDynamic())
-  val var29 = a2.operand0
-  var29 := DontCare
-  val var30 = a2.operand1
-  var30 := DontCare
-  val var31 = a2.result
-  var31 := DontCare
-  var3.bits := 0.U
-  var3.valid := true.B
-  var6.bits := 0.U
-  var6.valid := true.B
-  var8 <> var4
-  var2 <> var17
-  var5 <> var21
-  var23 <> var9
-  var12 <> var25
-  var15 <> var13
-  var19 <> var14
-  var26 <> var10
-  var27.bits := 1.U
-  var27.valid := true.B
-  var16 <> var28
-  var29 <> var11
-  var30 <> var7
-  var20 <> var31
-}
 
 object Elaborate extends App {
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new branch_prediction())))
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
-  // (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
-  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new ReadWriteMem(1024))))
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
+  //(new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new ReadWriteMem(1024))))
 }
 
+/*
+object TestPipelineFor extends ChiselUtestTester {
+  val tests = Tests {
+    test("pipeline_for") {
+      testCircuit(
+        new main,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        fork {
+          dut.go.poke(true.B)
+          dut.var10.poke(3.U)
+          dut.var11.poke(7.U)
+          dut.var12.poke(1.U)
+          dut.var13.poke(0.U)
+          dut.var14.poke(true.B)
+          dut.clock.step()
+        } fork {
+          dut.clock.step(2)
+          while (!dut.done.peek.litToBoolean) dut.clock.step()
+          dut.clock.step(3)
+          fork {
+            dut.go.poke(true.B)
+            dut.var10.poke(0.U)
+            dut.var11.poke(20.U)
+            dut.var12.poke(1.U)
+            dut.var13.poke(0.U)
+            dut.var14.poke(true.B)
+            dut.clock.step()
+          } fork {
+            dut.clock.step(3)
+            while (!dut.done.peek.litToBoolean) dut.clock.step()
+          } join()
+          dut.clock.step(5)
+          fork {
+            dut.var10.poke(30.U)
+            dut.go.poke(true.B)
+            dut.var11.poke(28.U)
+            dut.var12.poke(1.U)
+            dut.var13.poke(0.U)
+            dut.var14.poke(true.B)
+            dut.clock.step()
+          } fork {
+            dut.clock.step(3)
+            //            while (!dut.done.peek.litToBoolean) dut.clock.step()
+          } join()
+        } join()
+      }
+    }
+  }
+}
+
+object TestPipelineFunction extends ChiselUtestTester {
+  val tests = Tests {
+    test("pipeline_function") {
+      testCircuit(
+        new pipelined_func,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        fork {
+          for (i <- 0 until 10) {
+            if (Random.nextBoolean()) {
+              dut.new_input.poke(true.B)
+            } else {
+              dut.new_input.poke(false.B)
+            }
+            dut.var0.poke(Random.nextInt(1000).U)
+            dut.var1.poke(true.B)
+            dut.clock.step(2)
+          }
+        } fork {
+          for (i <- 0 until 20) {
+            if (Random.nextBoolean()) {
+              dut.start.poke(true.B)
+            } else {
+              dut.start.poke(false.B)
+            }
+            dut.clock.step()
+          }
+        } join()
+      }
+    }
+  }
+}*/
+
+class dynamicWrapper extends MultiIOModule {
+  def connection[T <: Data](outer: DecoupledIO[T], inner: DecoupledIO[T]): Unit = {
+    val reg_bits = Reg(outer.bits.cloneType)
+    var reg_valid = Reg(Bool())
+    reg_bits := outer.bits
+    inner.bits := reg_bits
+
+    reg_valid := outer.valid
+    inner.valid := reg_valid
+    outer.ready := inner.ready
+  }
+
+  val var0 = IO(Flipped(DecoupledIO(UInt(32.W))))
+  val var1 = IO(Flipped(DecoupledIO(UInt(32.W))))
+  val var2 = IO(Flipped(DecoupledIO(UInt(32.W))))
+  val var3 = IO(Flipped(DecoupledIO(UInt(32.W))))
+  val var4 = IO(DecoupledIO(UInt(32.W)))
+
+  val main = Module(new main())
+  connection(var0, main.var0)
+  connection(var1, main.var1)
+  connection(var2, main.var2)
+  connection(var3, main.var3)
+  var4 <> main.var4
+
+}
+
+object TestDynamic extends ChiselUtestTester {
+  val tests = Tests {
+    test("dynamic") {
+      testCircuit(
+        new dynamicWrapper,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        fork {
+          dut.var0.bits.poke(3.U)
+          dut.var0.valid.poke(true.B)
+          dut.var1.bits.poke(20.U)
+          dut.var1.valid.poke(true.B)
+          dut.var2.bits.poke(1.U)
+          dut.var2.valid.poke(true.B)
+          dut.var3.bits.poke(0.U)
+          dut.var3.valid.poke(true.B)
+          dut.clock.step()
+        } fork {
+//          for (i <- 0 until 100) {
+//            dut.clock.step()
+//          }
+          dut.clock.step(100)
+        } join()
+      }
+    }
+  }
+}
+
+
+/*
+class buffer extends MultiIOModule {
+  val in = IO(Flipped(DecoupledIO(UInt(32.W))))
+  val out = IO(DecoupledIO(UInt(32.W)))
+
+  val EB = Module(new ElasticBuffer())
+  EB.dataIn <> in
+  EB.dataOut <> out
+}
+
+
+class wrapper extends MultiIOModule {
+  val in = IO(Flipped(DecoupledIO(UInt(32.W))))
+  val out = IO(DecoupledIO(UInt(32.W)))
+
+  //  val reg_bits = Reg(UInt(32.W))
+  //  val reg_valid = Reg(Bool())
+  //  reg_bits := in.bits
+  //  reg_valid := in.valid
+  //  val reg_in = Reg(ValidIO(UInt(32.W)))
+  //  reg_in <> in
+  def connection[T <: Data](outer: DecoupledIO[T], inner: DecoupledIO[T]): Unit = {
+    val reg_bits = Reg(outer.bits.cloneType)
+    var reg_valid = Reg(Bool())
+    reg_bits := outer.bits
+    inner.bits := reg_bits
+
+    reg_valid := outer.valid
+    inner.valid := reg_valid
+    outer.ready := inner.ready
+  }
+
+  val module = Module(new buffer())
+  //  module.in.bits := reg_bits
+  //  module.in.valid := reg_valid
+  //  in.ready := module.in.ready
+  connection(in, module.in)
+  out <> module.out
+}
+
+object TestBuffer extends ChiselUtestTester {
+  val tests = Tests {
+    test("buffer") {
+      testCircuit(
+        new wrapper,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.in.initSource()
+        dut.in.setSourceClock(dut.clock)
+        dut.out.initSink()
+        dut.out.setSinkClock(dut.clock)
+        fork {
+          dut.in.enqueueSeq(Seq(42.U, 43.U, 44.U))
+        } fork {
+          dut.out.expectDequeueSeq(Seq(42.U, 43.U, 44.U))
+        } join()
+      }
+    }
+  }
+}
+*/

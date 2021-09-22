@@ -5,13 +5,15 @@ import chisel3.util._
 import chisel3.experimental._
 
 
-class BinaryUnit(width: Int = 32, func: (UInt, UInt) => UInt) extends MultiIOModule {
+class BinaryUnit(width: Int = 32, func: (UInt, UInt) => UInt, shift: Int = 0) extends MultiIOModule {
   val operand0 = IO(Input(UInt(width.W)))
   val operand1 = IO(Input(UInt(width.W)))
   val result = IO(Output(UInt(width.W)))
-  result := func(operand0, operand1)
+  //  result := func(operand0, operand1)
+  private val buffer = ShiftRegister(func(operand0, operand1), shift)
+  result := buffer
 }
-  
+
 class And(width: Int = 32) extends BinaryUnit(width, _ & _) {}
 
 class Or(width: Int = 32) extends BinaryUnit(width, _ | _) {}
@@ -22,7 +24,8 @@ class AddI(width: Int = 32) extends BinaryUnit(width, _ + _) {}
 
 class SubI(width: Int = 32) extends BinaryUnit(width, _ - _) {}
 
-class MulI(width: Int = 32) extends BinaryUnit(width, _ * _) {}
+class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 1) {}
+
 
 class DivI(width: Int = 32) extends BinaryUnit(width, _ / _) {}
 
@@ -59,7 +62,11 @@ class CmpI(width: Int = 32, func: (UInt, UInt) => Bool) extends MultiIOModule {
 
 class GreaterthanI(width: Int = 32) extends CmpI(width, _ > _) {}
 
+class GreaterEqualthanI(width: Int = 32) extends CmpI(width, _ >= _) {}
+
 class LessthanI(width: Int = 32) extends CmpI(width, _ < _) {}
+
+class LessEqualthanI(width: Int = 32) extends CmpI(width, _ <= _) {}
 
 class EqualI(width: Int = 32) extends CmpI(width, _ === _) {}
 
@@ -75,6 +82,10 @@ class CmpIDynamic(width: Int = 32, func: (UInt, UInt) => Bool) extends MultiIOMo
 
 class GreaterthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ > _) {}
 
+class GreaterEqualthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ >= _) {}
+
 class LessthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ < _) {}
+
+class LessEqualthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ <= _) {}
 
 class EqualIDynamic(width: Int = 32) extends CmpIDynamic(width, _ === _) {}

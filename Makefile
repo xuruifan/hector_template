@@ -1,11 +1,11 @@
 BUILD_DIR = ./build
 
 test:
-	mill -i __.test $(TEST)
+	mill -i playground.test $(TEST)
 
 verilog:
 	mkdir -p $(BUILD_DIR)
-	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
+	mill playground.test.runMain Elaborate -td $(BUILD_DIR)
 
 help:
 	mill -i __.test.runMain Elaborate --help
