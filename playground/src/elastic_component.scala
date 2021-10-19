@@ -114,7 +114,6 @@ class Merge_no_tehb(size: Int = 32)(input: Int = 2) extends MultiIOModule {
   val dataIn = IO(Vec(input, Flipped(DecoupledIO(UInt(size.W)))))
   val dataOut = IO(DecoupledIO(UInt(size.W)))
 
-
   for (i <- 0 until input) {
     dataIn(i).ready := dataOut.ready
   }
@@ -272,4 +271,120 @@ class Sink(size: Int = 32) extends MultiIOModule {
 
 class Const(size: Int = 32) extends MultiIOModule {
 
+}
+
+class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
+  val address_in = IO(Flipped(DecoupledIO(UInt(width.W))))
+  val data_out = IO(DecoupledIO(UInt(size.W)))
+
+  val address_out = IO(DecoupledIO(UInt(width.W)))
+  val data_in = IO(Flipped(DecoupledIO(UInt(size.W))))
+}
+
+class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
+  val address_in = IO(Flipped(DecoupledIO(UInt(width.W))))
+  val data_in = IO(Flipped(DecoupledIO(UInt(size.W))))
+
+  val address_out = IO(DecoupledIO(UInt(width.W)))
+  val data_out = IO(DecoupledIO(UInt(size.W)))
+}
+
+class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) extends MultiIOModule {
+  private val addrWidth = log2Ceil(size)
+  val load_address = IO(Vec(loadNum, Flipped(DecoupledIO(UInt(addrWidth.W)))))
+  val load_data = IO(Vec(loadNum, DecoupledIO(UInt(width.W))))
+  for (i <- 0 until loadNum) {
+    load_data(i).valid := false.B
+    load_data(i).bits := DontCare
+  }
+
+  val store_address = IO(Vec(storeNum, Flipped(DecoupledIO(UInt(addrWidth.W)))))
+  val store_data = IO(Vec(storeNum, Flipped(DecoupledIO(UInt(width.W)))))
+
+  val mem = Module(new ReadWriteMem(size, width))
+  //  mem.initMem("/home/xrf/IdeaProjects/hls/testinit.txt")
+
+  if (loadNum == 0 && storeNum == 1) {
+    val join = Module(new Join())
+
+    join.pValid(0) := store_address(0).valid
+    join.pValid(1) := store_data(0).valid
+    store_address(0).ready := join.ready(0)
+    store_data(0).ready := join.ready(1)
+    join.nReady := true.B
+
+    val finish = IO(Input(Bool()))
+    val read_address = IO(Input(UInt(addrWidth.W)))
+    val out_data = IO(Output(UInt(width.W)))
+    out_data := DontCare
+    mem.r_en := !finish
+    when(finish) {
+      mem.addr := read_address
+      mem.w_en := false.B
+      mem.w_data := DontCare
+      out_data := mem.r_data
+    }.otherwise {
+      mem.w_en := join.valid
+      mem.addr := store_address(0).bits
+      mem.w_data := store_data(0).bits
+    }
+  } else if (storeNum == 0) {
+    mem.addr := DontCare
+    mem.r_en := false.B
+    mem.w_data := DontCare
+    mem.w_en := false.B
+    val buffer = for (i <- 0 until loadNum) yield {
+      val tehb = Module(new TEHB(width))
+      tehb.dataIn.bits := DontCare
+      tehb.dataIn.valid := false.B
+      tehb
+    }
+    //    val load_valid = (load_address zip load_data).map(x => x._1.valid & x._2.ready)
+    val load_valid = (load_address zip buffer).map(x => x._1.valid & x._2.dataOut.ready)
+    val arb = Module(new Arbiter(UInt(addrWidth.W), loadNum))
+    arb.io.out.ready := true.B
+    for (i <- 0 until loadNum) {
+      arb.io.in(i).valid := load_valid(i)
+      arb.io.in(i).bits := load_address(i).bits
+      load_address(i).ready := arb.io.in(i).ready
+      load_data(i).bits := DontCare
+      load_data(i).valid := false.B
+      buffer(i).dataOut <> load_data(i)
+    }
+    val select = Reg(UInt(log2Ceil(loadNum).W))
+    val valid = RegInit(false.B)
+    val data = RegInit(0.U(width.W))
+    when(arb.io.out.valid) {
+      mem.r_en := true.B
+      mem.addr := load_address(arb.io.chosen).bits
+      select := arb.io.chosen
+    }
+    valid := arb.io.out.valid
+    //    load_data(select).valid := valid
+    //    buffer(select).dataIn.valid := valid
+    for (i <- 0 until loadNum) {
+      when(i.U === select) {
+        buffer(i).dataIn.valid := valid
+      }
+    }
+
+    when(valid) {
+      //      load_data(select).bits := mem.r_data
+      for (i <- 0 until loadNum) {
+        when(i.U === select) {
+          buffer(i).dataIn.bits := mem.r_data
+        }
+      }
+      data := mem.r_data
+    }.otherwise {
+      //      load_data(select).bits := data
+      for (i <- 0 until loadNum) {
+        when(i.U === select) {
+          buffer(i).dataIn.bits := data
+        }
+      }
+    }
+  } else {
+
+  }
 }

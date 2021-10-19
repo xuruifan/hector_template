@@ -13,7 +13,7 @@ import chiseltest.internal.{VerilatorBackendAnnotation, WriteVcdAnnotation}
 object Elaborate extends App {
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new branch_prediction())))
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
-  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new DynMem(0, 1)(256))))
   //(new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new ReadWriteMem(1024))))
 }
 
@@ -101,7 +101,7 @@ object TestPipelineFunction extends ChiselUtestTester {
   }
 }*/
 
-class dynamicWrapper extends MultiIOModule {
+trait dynamicDelay {
   def connection[T <: Data](outer: DecoupledIO[T], inner: DecoupledIO[T]): Unit = {
     val reg_bits = Reg(outer.bits.cloneType)
     var reg_valid = Reg(Bool())
@@ -113,6 +113,17 @@ class dynamicWrapper extends MultiIOModule {
     outer.ready := inner.ready
   }
 
+  def connection_inverse[T <: Data](outer: DecoupledIO[T], inner: DecoupledIO[T]): Unit = {
+    var reg_ready = Reg(Bool())
+    outer.bits := inner.bits
+
+    reg_ready := outer.ready
+    inner.ready := reg_ready
+    outer.valid := inner.valid
+  }
+}
+
+class dynamicWrapper extends MultiIOModule with dynamicDelay {
   val var0 = IO(Flipped(DecoupledIO(UInt(32.W))))
   val var1 = IO(Flipped(DecoupledIO(UInt(32.W))))
   val var2 = IO(Flipped(DecoupledIO(UInt(32.W))))
@@ -146,10 +157,34 @@ object TestDynamic extends ChiselUtestTester {
           dut.var3.valid.poke(true.B)
           dut.clock.step()
         } fork {
-//          for (i <- 0 until 100) {
-//            dut.clock.step()
-//          }
-          dut.clock.step(100)
+          //          for (i <- 0 until 100) {
+          //            dut.clock.step()
+          //          }
+          //          dut.clock.step(100)
+          while (!dut.var4.valid.peek.litToBoolean) dut.clock.step()
+          fork {
+            dut.var4.ready.poke(true.B)
+            dut.clock.step()
+          } fork {
+            dut.clock.step(3)
+            fork {
+              dut.var0.bits.poke(3.U)
+              dut.var0.valid.poke(true.B)
+              dut.var1.bits.poke(7.U)
+              dut.var1.valid.poke(true.B)
+              dut.var2.bits.poke(1.U)
+              dut.var2.valid.poke(true.B)
+              dut.var3.bits.poke(0.U)
+              dut.var3.valid.poke(true.B)
+              dut.clock.step()
+            } fork {
+              //          for (i <- 0 until 100) {
+              //            dut.clock.step()
+              //          }
+              //          dut.clock.step(100)
+              while (!dut.var4.valid.peek.litToBoolean) dut.clock.step()
+            } join()
+          } join()
         } join()
       }
     }
@@ -218,3 +253,57 @@ object TestBuffer extends ChiselUtestTester {
   }
 }
 */
+class dynMemWrapper extends MultiIOModule with dynamicDelay {
+  val addr = IO(Vec(2, Flipped(DecoupledIO(UInt(8.W)))))
+  val data = IO(Vec(2, DecoupledIO(UInt(32.W))))
+
+  val main = Module(new DynMem(2, 0)(256))
+  connection(addr(0), main.load_address(0))
+  connection_inverse(data(0), main.load_data(0))
+  connection(addr(1), main.load_address(1))
+  connection_inverse(data(1), main.load_data(1))
+}
+
+object TestDynMem extends ChiselUtestTester {
+  val tests = Tests {
+    test("dynMem") {
+      testCircuit(
+        new dynMemWrapper,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        fork {
+        } fork {
+          dut.clock.step(10)
+        } fork {
+          for (i <- 0 until 10) {
+            if (i > 4) {
+              dut.data(0).ready.poke(true.B)
+            } else {
+              dut.data(0).ready.poke(false.B)
+            }
+            if (i <= 5) {
+              dut.addr(0).valid.poke(true.B)
+              dut.addr(0).bits.poke(2.U)
+            } else {
+              dut.addr(0).valid.poke(false.B)
+              dut.addr(0).bits.poke(0.U)
+            }
+            if (i > 5) {
+              dut.data(1).ready.poke(true.B)
+            } else {
+              dut.data(1).ready.poke(false.B)
+            }
+            if (i <= 7) {
+              dut.addr(1).valid.poke(true.B)
+              dut.addr(1).bits.poke(3.U)
+            } else {
+              dut.addr(1).valid.poke(false.B)
+              dut.addr(1).bits.poke(0.U)
+            }
+            dut.clock.step()
+          }
+        } join()
+      }
+    }
+  }
+}

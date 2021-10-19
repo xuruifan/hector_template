@@ -3,9 +3,15 @@ package hls
 import chisel3._
 import chisel3.util._
 import chisel3.experimental._
+import chisel3.util.experimental.loadMemoryFromFileInline
 
-class ReadMem(size: Int, width: Int = 32) extends MultiIOModule {
-  private val mem = SyncReadMem(size, UInt(width.W))
+trait InitMem {
+  def mem : SyncReadMem[UInt]
+  def initMem(memoryFile: String) = loadMemoryFromFileInline(mem, memoryFile)
+}
+
+class ReadMem(size: Int, width: Int = 32) extends MultiIOModule with InitMem {
+  val mem = SyncReadMem(size, UInt(width.W))
   private val addrWidth = log2Ceil(size)
   val r_en = IO(Input(Bool()))
   val addr = IO(Input(UInt(addrWidth.W)))
@@ -14,8 +20,8 @@ class ReadMem(size: Int, width: Int = 32) extends MultiIOModule {
   r_data := mem.read(addr, r_en)
 }
 
-class WriteMem(size: Int, width: Int = 32) extends MultiIOModule {
-  private val mem = SyncReadMem(size, UInt(width.W))
+class WriteMem(size: Int, width: Int = 32) extends MultiIOModule with InitMem {
+  val mem = SyncReadMem(size, UInt(width.W))
   private val addrWidth = log2Ceil(size)
   val w_en = IO(Input(Bool()))
   val addr = IO(Input(UInt(addrWidth.W)))
@@ -26,8 +32,8 @@ class WriteMem(size: Int, width: Int = 32) extends MultiIOModule {
   }
 }
 
-class ReadWriteMem(size: Int, width: Int = 32) extends MultiIOModule {
-  private val mem = SyncReadMem(size, UInt(width.W))
+class ReadWriteMem(size: Int, width: Int = 32) extends MultiIOModule with InitMem {
+  val mem = SyncReadMem(size, UInt(width.W))
   private val addrWidth = log2Ceil(size)
   val r_en = IO(Input(Bool()))
   val w_en = IO(Input(Bool()))
