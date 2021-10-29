@@ -302,7 +302,8 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
   val store_data = IO(Vec(storeNum, Flipped(DecoupledIO(UInt(width.W)))))
 
   val mem = Module(new ReadWriteMem(size, width))
-  //  mem.initMem("/home/xrf/IdeaProjects/hls/testinit.txt")
+
+  def initMem(memoryFile: String) = mem.initMem(memoryFile)
 
   if (loadNum == 0 && storeNum == 1) {
     val join = Module(new Join())

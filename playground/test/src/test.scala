@@ -13,7 +13,7 @@ import chiseltest.internal.{VerilatorBackendAnnotation, WriteVcdAnnotation}
 object Elaborate extends App {
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new branch_prediction())))
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
-  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new DynMem(0, 1)(256))))
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new TopModule())))
   //(new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new ReadWriteMem(1024))))
 }
 
@@ -123,6 +123,7 @@ trait dynamicDelay {
   }
 }
 
+/*
 class dynamicWrapper extends MultiIOModule with dynamicDelay {
   val var0 = IO(Flipped(DecoupledIO(UInt(32.W))))
   val var1 = IO(Flipped(DecoupledIO(UInt(32.W))))
@@ -189,7 +190,7 @@ object TestDynamic extends ChiselUtestTester {
       }
     }
   }
-}
+}*/
 
 
 /*
@@ -258,6 +259,7 @@ class dynMemWrapper extends MultiIOModule with dynamicDelay {
   val data = IO(Vec(2, DecoupledIO(UInt(32.W))))
 
   val main = Module(new DynMem(2, 0)(256))
+  main.initMem("testinit.txt")
   connection(addr(0), main.load_address(0))
   connection_inverse(data(0), main.load_data(0))
   connection(addr(1), main.load_address(1))

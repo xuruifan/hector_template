@@ -7,357 +7,501 @@ import testing._
 import chisel3.experimental._
 import hls._
 
-class main extends MultiIOModule {
-  val var0 = IO(Flipped(DecoupledIO(UInt(32.W))))
-  val var1 = IO(Flipped(DecoupledIO(UInt(32.W))))
-  val var2 = IO(Flipped(DecoupledIO(UInt(32.W))))
-  val var3 = IO(Flipped(DecoupledIO(UInt(32.W))))
-  val var4 = IO(DecoupledIO(UInt(32.W)))
-  var4 := DontCare
-  val cmpi_sle_0 = Module(new LessEqualthanIDynamic())
-  val var5 = cmpi_sle_0.operand0
-  var5 := DontCare
-  val var6 = cmpi_sle_0.operand1
-  var6 := DontCare
-  val var7 = cmpi_sle_0.result
-  var7 := DontCare
-  val m_1 = Module(new Merge()())
-  val var8 = m_1.dataIn apply 0
-  var8 := DontCare
-  val var9 = m_1.dataIn apply 1
-  var9 := DontCare
-  val var10 = m_1.dataOut
-  var10 := DontCare
-  val b_2 = Module(new Branch())
-  val var11 = b_2.condition
-  var11 := DontCare
-  val var12 = b_2.dataIn
-  var12 := DontCare
-  val var13 = b_2.dataOut apply 0
-  var13 := DontCare
-  val var14 = b_2.dataOut apply 1
-  var14 := DontCare
-  val buf_3 = Module(new ElasticBuffer())
-  val var15 = buf_3.dataIn
-  var15 := DontCare
-  val var16 = buf_3.dataOut
-  var16 := DontCare
-  val m_4 = Module(new Merge()())
-  val var17 = m_4.dataIn apply 0
-  var17 := DontCare
-  val var18 = m_4.dataIn apply 1
-  var18 := DontCare
-  val var19 = m_4.dataOut
-  var19 := DontCare
-  val buf_5 = Module(new ElasticBuffer())
-  val var20 = buf_5.dataIn
-  var20 := DontCare
-  val var21 = buf_5.dataOut
-  var21 := DontCare
-  val b_6 = Module(new Branch())
-  val var22 = b_6.condition
-  var22 := DontCare
-  val var23 = b_6.dataIn
-  var23 := DontCare
-  val var24 = b_6.dataOut apply 0
-  var24 := DontCare
-  val var25 = b_6.dataOut apply 1
-  var25 := DontCare
-  val m_7 = Module(new Merge()())
-  val var26 = m_7.dataIn apply 0
-  var26 := DontCare
-  val var27 = m_7.dataIn apply 1
-  var27 := DontCare
-  val var28 = m_7.dataOut
-  var28 := DontCare
-  val buf_8 = Module(new ElasticBuffer())
-  val var29 = buf_8.dataIn
-  var29 := DontCare
-  val var30 = buf_8.dataOut
-  var30 := DontCare
-  val b_9 = Module(new Branch())
-  val var31 = b_9.condition
-  var31 := DontCare
-  val var32 = b_9.dataIn
-  var32 := DontCare
-  val var33 = b_9.dataOut apply 0
-  var33 := DontCare
-  val var34 = b_9.dataOut apply 1
-  var34 := DontCare
-  val m_10 = Module(new Merge()())
-  val var35 = m_10.dataIn apply 0
-  var35 := DontCare
-  val var36 = m_10.dataIn apply 1
-  var36 := DontCare
-  val var37 = m_10.dataOut
-  var37 := DontCare
-  val buf_11 = Module(new ElasticBuffer())
-  val var38 = buf_11.dataIn
-  var38 := DontCare
-  val var39 = buf_11.dataOut
-  var39 := DontCare
-  val b_12 = Module(new Branch())
-  val var40 = b_12.condition
-  var40 := DontCare
-  val var41 = b_12.dataIn
-  var41 := DontCare
-  val var42 = b_12.dataOut apply 0
-  var42 := DontCare
-  val var43 = b_12.dataOut apply 1
-  var43 := DontCare
-  val addi_13 = Module(new AddIDynamic())
-  val var44 = addi_13.operand0
-  var44 := DontCare
-  val var45 = addi_13.operand1
-  var45 := DontCare
-  val var46 = addi_13.result
-  var46 := DontCare
-  val cmpi_14 = Module(new LessEqualthanIDynamic())
-  val var47 = cmpi_14.operand0
-  var47 := DontCare
-  val var48 = cmpi_14.operand1
-  var48 := DontCare
-  val var49 = cmpi_14.result
-  var49 := DontCare
-  val b_15 = Module(new Branch())
-  val var50 = b_15.condition
-  var50 := DontCare
-  val var51 = b_15.dataIn
-  var51 := DontCare
-  val var52 = b_15.dataOut apply 0
-  var52 := DontCare
-  val var53 = b_15.dataOut apply 1
-  var53 := DontCare
-  val b_16 = Module(new Branch())
-  val var54 = b_16.condition
-  var54 := DontCare
-  val var55 = b_16.dataIn
-  var55 := DontCare
-  val var56 = b_16.dataOut apply 0
-  var56 := DontCare
-  val var57 = b_16.dataOut apply 1
-  var57 := DontCare
-  val m_17 = Module(new Merge()())
-  val var58 = m_17.dataIn apply 0
-  var58 := DontCare
-  val var59 = m_17.dataIn apply 1
-  var59 := DontCare
-  val var60 = m_17.dataOut
-  var60 := DontCare
-  val addi_18 = Module(new AddIDynamic())
-  val var61 = addi_18.operand0
-  var61 := DontCare
-  val var62 = addi_18.operand1
-  var62 := DontCare
-  val var63 = addi_18.result
-  var63 := DontCare
-  val addi_19 = Module(new AddIDynamic())
-  val var64 = addi_19.operand0
-  var64 := DontCare
-  val var65 = addi_19.operand1
-  var65 := DontCare
-  val var66 = addi_19.result
-  var66 := DontCare
-  val addi_20 = Module(new AddIDynamic())
-  val var67 = addi_20.operand0
-  var67 := DontCare
-  val var68 = addi_20.operand1
-  var68 := DontCare
-  val var69 = addi_20.result
-  var69 := DontCare
-  val f_21 = Module(new Fork()(4))
-  val var70 = f_21.dataIn
-  var70 := DontCare
-  val var71 = f_21.dataOut apply 0
-  var71 := DontCare
-  val var72 = f_21.dataOut apply 1
-  var72 := DontCare
-  val var73 = f_21.dataOut apply 2
-  var73 := DontCare
-  val var74 = f_21.dataOut apply 3
-  var74 := DontCare
-  val f_22 = Module(new Fork()(2))
-  val var75 = f_22.dataIn
-  var75 := DontCare
-  val var76 = f_22.dataOut apply 0
-  var76 := DontCare
-  val var77 = f_22.dataOut apply 1
-  var77 := DontCare
-  val f_23 = Module(new Fork()(2))
-  val var78 = f_23.dataIn
-  var78 := DontCare
-  val var79 = f_23.dataOut apply 0
-  var79 := DontCare
-  val var80 = f_23.dataOut apply 1
-  var80 := DontCare
-  val f_24 = Module(new Fork()(2))
-  val var81 = f_24.dataIn
-  var81 := DontCare
-  val var82 = f_24.dataOut apply 0
-  var82 := DontCare
-  val var83 = f_24.dataOut apply 1
-  var83 := DontCare
-  val f_25 = Module(new Fork()(3))
-  val var84 = f_25.dataIn
-  var84 := DontCare
-  val var85 = f_25.dataOut apply 0
-  var85 := DontCare
-  val var86 = f_25.dataOut apply 1
-  var86 := DontCare
-  val var87 = f_25.dataOut apply 2
-  var87 := DontCare
-  val f_26 = Module(new Fork()(2))
-  val var88 = f_26.dataIn
-  var88 := DontCare
-  val var89 = f_26.dataOut apply 0
-  var89 := DontCare
-  val var90 = f_26.dataOut apply 1
-  var90 := DontCare
-  val f_27 = Module(new Fork()(2))
-  val var91 = f_27.dataIn
-  var91 := DontCare
-  val var92 = f_27.dataOut apply 0
-  var92 := DontCare
-  val var93 = f_27.dataOut apply 1
-  var93 := DontCare
-  var15 <> var10
-  var12 <> var16
-  var11 <> var74
-  var8 <> var3
-  var20 <> var19
-  var17 <> var2
-  var22 <> var73
-  var23 <> var77
-  var18 <> var24
-  var29 <> var28
-  var26 <> var1
-  var31 <> var72
-  var32 <> var80
-  var27 <> var33
-  var38 <> var37
-  var35 <> var0
-  var5 <> var83
-  var6 <> var79
-  var40 <> var71
-  var41 <> var82
-  var44 <> var87
-  var45 <> var76
-  var36 <> var46
-  var47 <> var86
-  var48.bits := 5.U
-  var48.valid := true.B
-  var50 <> var90
-  var51 <> var85
-  var54 <> var89
-  var55 <> var13
-  var61 <> var56
-  var62 <> var52
-  var58 <> var63
-  var64 <> var93
-  var65 <> var92
-  var67 <> var57
-  var68 <> var66
-  var59 <> var69
-  var9 <> var60
-  var4 <> var14
-  var70 <> var7
-  var75 <> var21
-  var78 <> var30
-  var81 <> var39
-  var84 <> var42
-  var88 <> var49
-  var91 <> var53
-  var25.ready := true.B
-  var34.ready := true.B
-  var43.ready := true.B
-}
-
-class Z extends MultiIOModule {
-  val go = IO(Input(Bool()))
-  val done = IO(Output(Bool()))
-  done := 0.U
-  val var0 = IO(Input(UInt(32.W)))
-  val var1 = IO(Output(UInt(32.W)))
-  var1 := DontCare
-  object State extends ChiselEnum {
-    val z0 = Value
-  }
-  val state = RegInit(State.z0)
-  switch (state) {
-    is (State.z0) {
-      when (go) {
-        done := 1.U
-        var1 := 30.U
+class TopModule extends MultiIOModule {
+  val mem_global_0 = Module(new ReadMem(1666, 64))
+  val var0 = mem_global_0.r_en
+  val var1 = mem_global_0.addr
+  val var2 = mem_global_0.r_data
+  val mem_global_1 = Module(new ReadMem(1666, 32))
+  val var3 = mem_global_1.r_en
+  val var4 = mem_global_1.addr
+  val var5 = mem_global_1.r_data
+  val mem_global_2 = Module(new ReadMem(495, 32))
+  val var6 = mem_global_2.r_en
+  val var7 = mem_global_2.addr
+  val var8 = mem_global_2.r_data
+  val mem_global_3 = Module(new ReadMem(494, 64))
+  val var9 = mem_global_3.r_en
+  val var10 = mem_global_3.addr
+  val var11 = mem_global_3.r_data
+  val mem_global_4 = Module(new WriteMem(494, 64))
+  val var12 = mem_global_4.w_en
+  val var13 = mem_global_4.addr
+  val var14 = mem_global_4.w_data
+  class outline_0 extends MultiIOModule {
+    val go = IO(Input(Bool()))
+    val start = RegInit(false.B)
+    val new_input = Wire(Bool())
+    new_input := false.B
+    val done = IO(Output(Bool()))
+    done := 0.U
+    val var15 = IO(Input(UInt(32.W)))
+    val var16 = IO(Input(UInt(32.W)))
+    val var17 = IO(Input(UInt(32.W)))
+    val var18 = IO(Output(UInt(64.W)))
+    var18 := DontCare
+    val var0 = IO(Output(UInt(1.W)))
+    var0 := false.B
+    val var1 = IO(Output(UInt(11.W)))
+    var1 := DontCare
+    val var3 = IO(Output(UInt(1.W)))
+    var3 := false.B
+    val var4 = IO(Output(UInt(11.W)))
+    var4 := DontCare
+    val var9 = IO(Output(UInt(1.W)))
+    var9 := false.B
+    val var10 = IO(Output(UInt(9.W)))
+    var10 := DontCare
+    val var19 = Reg(UInt(32.W))
+    val var20 = Reg(UInt(32.W))
+    val var21 = Reg(UInt(32.W))
+    val var22 = Reg(UInt(32.W))
+    val var23 = Reg(UInt(32.W))
+    val var24 = Reg(UInt(32.W))
+    val var25 = Reg(UInt(32.W))
+    val var26 = Reg(UInt(32.W))
+    val var27 = Reg(UInt(32.W))
+    val var28 = Reg(UInt(32.W))
+    val var29 = Reg(UInt(32.W))
+    val var30 = Reg(UInt(32.W))
+    val var31 = Reg(UInt(32.W))
+    val var32 = Reg(UInt(32.W))
+    val var33 = Reg(UInt(32.W))
+    val var34 = Reg(UInt(32.W))
+    val var35 = Reg(UInt(32.W))
+    val var36 = Reg(UInt(32.W))
+    val var37 = Reg(UInt(32.W))
+    val var38 = Reg(UInt(32.W))
+    val var39 = Reg(UInt(32.W))
+    val var40 = Reg(UInt(64.W))
+    val var41 = Reg(UInt(64.W))
+    val var42 = Reg(UInt(64.W))
+    val var43 = Reg(UInt(64.W))
+    val var44 = Reg(UInt(64.W))
+    val var45 = Reg(UInt(64.W))
+    val var46 = Reg(UInt(64.W))
+    val var47 = Reg(UInt(64.W))
+    val var48 = Reg(UInt(64.W))
+    val var49 = Reg(UInt(64.W))
+    val var50 = Reg(UInt(64.W))
+    val var51 = Reg(UInt(64.W))
+    val var52 = Reg(UInt(64.W))
+    val var53 = Reg(UInt(32.W))
+    val var54 = Reg(UInt(32.W))
+    val var55 = Reg(UInt(32.W))
+    val var56 = Reg(UInt(32.W))
+    val var57 = Reg(UInt(64.W))
+    val var58 = Reg(UInt(64.W))
+    val var59 = Reg(UInt(64.W))
+    val mulf_outline_0_0 = Module(new MulFBase(6, 11, 53))
+    mulf_outline_0_0.enable := true.B
+    val var60 = mulf_outline_0_0.lhs
+    var60 := DontCare
+    val var61 = mulf_outline_0_0.rhs
+    var61 := DontCare
+    val var62 = mulf_outline_0_0.result
+    val addf_outline_0_0 = Module(new AddSubFBase(10, 11, 53, true))
+    addf_outline_0_0.enable := true.B
+    val var63 = addf_outline_0_0.lhs
+    var63 := DontCare
+    val var64 = addf_outline_0_0.rhs
+    var64 := DontCare
+    val var65 = addf_outline_0_0.result
+    val var66 = Reg(UInt(32.W))
+    when (go) {
+      var66 := var15
+    }
+    when (go) {
+      var40 := 0.U
+    }
+    val shift_register = RegInit(0.U(2.W))
+    when (go) {
+      when (var15 > var16) {
+        done := true.B
+        } .otherwise {
+          start := true.B
+        }
+    }
+    def valid(stage: Int): Bool = {
+      if (stage == 1) {
+        shift_register(0)
+      } else if (stage == 2) {
+        shift_register(0)
+      } else if (stage == 3) {
+        shift_register(0)
+      } else if (stage == 4) {
+        shift_register(0)
+      } else if (stage == 5) {
+        shift_register(0)
+      } else if (stage == 6) {
+        shift_register(0)
+      } else if (stage == 7) {
+        shift_register(0)
+      } else if (stage == 8) {
+        shift_register(0)
+      } else if (stage == 9) {
+        shift_register(0)
+      } else if (stage == 10) {
+        shift_register(0)
+      } else if (stage == 11) {
+        shift_register(0)
+      } else if (stage == 12) {
+        shift_register(1)
+      } else if (stage == 13) {
+        shift_register(1)
+      } else if (stage == 14) {
+        shift_register(1)
+      } else if (stage == 15) {
+        shift_register(1)
+      } else if (stage == 16) {
+        shift_register(1)
+      } else if (stage == 17) {
+        shift_register(1)
+      } else if (stage == 18) {
+        shift_register(1)
+      } else if (stage == 19) {
+        shift_register(1)
+      } else if (stage == 20) {
+        shift_register(1)
+      } else if (stage == 21) {
+        shift_register(1)
+      } else {
+        new_input
       }
     }
-  }
-}
-
-
-class dyn_main extends MultiIOModule {
-  val var2_dyn = IO(Flipped(DecoupledIO(UInt(32.W))))
-  val var2 = var2_dyn.bits
-  val var3_dyn = IO(Flipped(DecoupledIO(UInt(1.W))))
-  val var3 = var3_dyn.bits
-  val var4_dyn = IO(DecoupledIO(UInt(32.W)))
-  val var4 = var4_dyn.bits
-  var4 := DontCare
-  var4_dyn.valid := false.B
-  val var5_dyn = IO(DecoupledIO(UInt(1.W)))
-  val var5 = var5_dyn.bits
-  var5 := DontCare
-  var5_dyn.valid := false.B
-  val go = var4_dyn.ready & var5_dyn.ready & var2_dyn.valid & var3_dyn.valid
-  def done() : Unit = {
-    var4_dyn.valid := true.B
-    var5_dyn.valid := true.B
-  }
-  val var6 = Reg(UInt(32.W))
-  val add = Module(new AddI())
-  val var7 = add.operand0
-  var7 := DontCare
-  val var8 = add.operand1
-  var8 := DontCare
-  val var9 = add.result
-  var9 := DontCare
-  val z = Module(new Z)
-  z.go := 0.U
-  val var10 = z.var0
-  var10 := DontCare
-  val var11 = z.go
-  var11 := DontCare
-  val var12 = z.var1
-  val var13 = z.done
-  object State extends ChiselEnum {
-    val s0, s1 = Value
-  }
-  val state = RegInit(State.s0)
-  val ready = go & (state === State.s0)
-  switch (state) {
-    is (State.s0) {
+    val counter = RegInit(0.U(4.W))
+    when (counter === 10.U) {
+      counter := 0.U
+      }.otherwise {
+        when (start || counter =/= 0.U) {
+          counter := counter + 1.U
+        }
+      }
+      when (counter === 0.U && start) {
+        shift_register := Cat(shift_register(0, 0), new_input)
+      }
+      when (counter === 0.U) {
+        when (valid(0)) {
+          var19 := var66
+        }
+        when (valid(0)) {
+          var41 := var40
+        }
+        when (valid(11)) {
+          var59 := var62
+        }
+        when (valid(11)) {
+          var30 := var29
+        }
+        when (valid(11)) {
+          var52 := var51
+        }
+      }
+      when (counter === 1.U) {
+        val var67 = var19 - var15
+        val var68 = var67 + var15
+        when (valid(1)) {
+          var53 := var68
+        }
+        when (valid(1)) {
+          var20 := var19
+        }
+        when (valid(1)) {
+          var42 := var41
+        }
+        var63 := var52
+        var64 := var59
+        when (valid(12)) {
+          var31 := var30
+        }
+      }
+      when (counter === 2.U) {
+        var4 := var53
+        var3 := 1.U
+        when (valid(2)) {
+          var21 := var20
+        }
+        when (valid(2)) {
+          var43 := var42
+        }
+        when (valid(2)) {
+          var54 := var53
+        }
+        when (valid(13)) {
+          var32 := var31
+        }
+      }
+      when (counter === 3.U) {
+        when (valid(3)) {
+          var22 := var21
+        }
+        when (valid(3)) {
+          var44 := var43
+        }
+        when (valid(3)) {
+          var55 := var54
+        }
+        when (valid(14)) {
+          var33 := var32
+        }
+      }
+      when (counter === 4.U) {
+        var1 := var55
+        var0 := 1.U
+        var10 := var56
+        var9 := 1.U
+        when (valid(4)) {
+          var23 := var22
+        }
+        when (valid(4)) {
+          var45 := var44
+        }
+        when (valid(15)) {
+          var34 := var33
+        }
+      }
+      when (counter === 5.U) {
+        when (valid(5)) {
+          var24 := var23
+        }
+        when (valid(5)) {
+          var46 := var45
+        }
+        when (valid(16)) {
+          var35 := var34
+        }
+      }
+      when (counter === 6.U) {
+        var60 := var57
+        var61 := var58
+        when (valid(6)) {
+          var25 := var24
+        }
+        when (valid(6)) {
+          var47 := var46
+        }
+        when (valid(17)) {
+          var36 := var35
+        }
+      }
+      when (counter === 7.U) {
+        when (valid(7)) {
+          var26 := var25
+        }
+        when (valid(7)) {
+          var48 := var47
+        }
+        when (valid(18)) {
+          var37 := var36
+        }
+      }
+      when (counter === 8.U) {
+        when (valid(8)) {
+          var27 := var26
+        }
+        when (valid(8)) {
+          var49 := var48
+        }
+        when (valid(19)) {
+          var38 := var37
+        }
+      }
+      when (counter === 9.U) {
+        when (valid(9)) {
+          var28 := var27
+        }
+        when (valid(9)) {
+          var50 := var49
+        }
+        when (valid(20)) {
+          var39 := var38
+        }
+      }
+      when (counter === 10.U) {
+        when (valid(10)) {
+          var29 := var28
+        }
+        when (valid(10)) {
+          var51 := var50
+        }
+        when (valid(21)) {
+          var51 := var65
+          var18 := var65
+          when (!valid(10)) {
+            done := true.B
+          }
+        }
+      }
+      val ub_reg = Reg(UInt(32.W))
       when (go) {
-        var6 := 10.U
-        var7 := var6
-        z.go := 1.U
-        when (1.U.asBool()) {
+        ub_reg := var16
+      }
+      val step_reg = Reg(UInt(32.W))
+      when (go) {
+        step_reg := var17
+      }
+      val upper_bound = Mux(go, var16, ub_reg)
+      val step = Mux(go, var17, step_reg)
+      new_input := start
+      when (start) {
+        when (var66 <= upper_bound) {
+          when (counter === 10.U) {
+            var66 := var66 + step
+          }
+          }.otherwise {
+            start := false.B
+            new_input := false.B
+          }
+      }
+  }
+  class main extends MultiIOModule {
+    val go = IO(Input(Bool()))
+    val done = IO(Output(Bool()))
+    done := 0.U
+    val var6 = IO(Output(UInt(1.W)))
+    var6 := false.B
+    val var7 = IO(Output(UInt(9.W)))
+    var7 := DontCare
+    val var12 = IO(Output(UInt(1.W)))
+    var12 := false.B
+    val var13 = IO(Output(UInt(9.W)))
+    var13 := DontCare
+    val var14 = IO(Output(UInt(64.W)))
+    var14 := DontCare
+    val var69 = Reg(UInt(1.W))
+    val var70 = Reg(UInt(32.W))
+    val var71 = Reg(UInt(32.W))
+    val var72 = Reg(UInt(32.W))
+    val var73 = Reg(UInt(64.W))
+    val outline_0_0 = Module(new outline_0)
+    outline_0_0.go := 0.U
+    val var74 = outline_0_0.var15
+    var74 := DontCare
+    val var75 = outline_0_0.var16
+    var75 := DontCare
+    val var76 = outline_0_0.var17
+    var76 := DontCare
+    val var77 = outline_0_0.go
+    var77 := DontCare
+    val var78 = outline_0_0.var18
+    val var79 = outline_0_0.done
+    val outline_0_0_var0 = IO(Output(UInt(1.W)))
+    outline_0_0_var0 := outline_0_0.var0
+    val outline_0_0_var1 = IO(Output(UInt(11.W)))
+    outline_0_0_var1 := outline_0_0.var1
+    val outline_0_0_var3 = IO(Output(UInt(1.W)))
+    outline_0_0_var3 := outline_0_0.var3
+    val outline_0_0_var4 = IO(Output(UInt(11.W)))
+    outline_0_0_var4 := outline_0_0.var4
+    val outline_0_0_var9 = IO(Output(UInt(1.W)))
+    outline_0_0_var9 := outline_0_0.var9
+    val outline_0_0_var10 = IO(Output(UInt(9.W)))
+    outline_0_0_var10 := outline_0_0.var10
+    object State extends ChiselEnum {
+      val s0, s1, s1_entry, s2, s3, s4, s5, s6, s6_wait, s7, s8, s8_0, s9, s10 = Value
+    }
+    val state = RegInit(State.s0)
+    val ready = go & (state === State.s0)
+    switch (state) {
+      is (State.s0) {
+        when (go) {
           state := State.s1;
         }
-        done()
-        var4 := var2
       }
-    }
-    is (State.s1) {
-      when (1.U.asBool()) {
-        z.go := 1.U
+      is (State.s1) {
+        val var80 = var70 <= 494.U
+        var69 := var80
+        val var81 = !var80
+        var70 := 0.U
+        state := State.s2;
+        when (var81.asBool()) {
+          state := State.s10;
+        }
       }
-      state := State.s0;
-      when (1.U.asBool()) {
-        done()
-        var4 := var12
+      is (State.s1_entry) {
+        val var82 = !var69
+        state := State.s2;
+        when (var82.asBool()) {
+          state := State.s10;
+        }
+      }
+      is (State.s2) {
+        var7 := var70
+        var6 := true.B
+        val var83 = var70 + 1.U
+        var71 := var83
+        state := State.s3;
+      }
+      is (State.s3) {
+        var71 := var8
+        var7 := var71
+        var6 := true.B
+        state := State.s4;
+      }
+      is (State.s4) {
+        var72 := var8
+        state := State.s5;
+      }
+      is (State.s5) {
+        state := State.s6;
+      }
+      is (State.s6) {
+        var74 := var71
+        var75 := var72
+        var76 := 1.U
+        outline_0_0.go := 1.U
+        when (var79.asBool()) {
+          var73 := var78
+        }
+        when (var79.asBool()) {
+          state := State.s7;
+        }
+        state := State.s6_wait;
+      }
+      is (State.s6_wait) {
+        when (var79.asBool()) {
+          var73 := var78
+        }
+        when (var79.asBool()) {
+          state := State.s7;
+        }
+        state := State.s6_wait;
+      }
+      is (State.s7) {
+        state := State.s8;
+      }
+      is (State.s8) {
+        var13 := var70
+        var14 := var73
+        var12 := true.B
+        state := State.s8_0;
+      }
+      is (State.s8_0) {
+        state := State.s9;
+      }
+      is (State.s9) {
+        val var84 = var70 + 1.U
+        var70 := var84
+        val var85 = var84 <= 494.U
+        var69 := var85
+        state := State.s1_entry;
+      }
+      is (State.s10) {
+        done := 1.U
       }
     }
   }
-  var2_dyn.ready := ready
-  var3_dyn.ready := ready
+  val main = Module(new main)
+  mem_global_2.dataIn(0).valid := main.var6
+  mem_global_2.dataIn(0).bits := main.var7
+  mem_global_4.dataIn(0).valid := main.var12
+  mem_global_4.dataIn(0).bits := main.var13
+  mem_global_4.dataIn(0).bits := main.var14
+  mem_global_0.dataIn(0).valid := main.outline_0_0_var0
+  mem_global_0.dataIn(0).bits := main.outline_0_0_var1
+  mem_global_1.dataIn(0).valid := main.outline_0_0_var3
+  mem_global_1.dataIn(0).bits := main.outline_0_0_var4
+  mem_global_3.dataIn(0).valid := main.outline_0_0_var9
+  mem_global_3.dataIn(0).bits := main.outline_0_0_var10
 }
 
