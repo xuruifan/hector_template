@@ -51,7 +51,7 @@ class WriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModu
 
   val arb = Module(new MyArbiter(addrWidth + width)(portNum))
 
-  val dataIn = IO(Vec(portNum, Flipped(ValidIO(UInt(width.W)))))
+  val dataIn = IO(Vec(portNum, Flipped(ValidIO(UInt((addrWidth + width).W)))))
   dataIn <> arb.dataIn
 
   val w_en = arb.dataOut.valid

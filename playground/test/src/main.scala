@@ -40,18 +40,6 @@ class TopModule extends MultiIOModule {
     val var17 = IO(Input(UInt(32.W)))
     val var18 = IO(Output(UInt(64.W)))
     var18 := DontCare
-    val var0 = IO(Output(UInt(1.W)))
-    var0 := false.B
-    val var1 = IO(Output(UInt(11.W)))
-    var1 := DontCare
-    val var3 = IO(Output(UInt(1.W)))
-    var3 := false.B
-    val var4 = IO(Output(UInt(11.W)))
-    var4 := DontCare
-    val var9 = IO(Output(UInt(1.W)))
-    var9 := false.B
-    val var10 = IO(Output(UInt(9.W)))
-    var10 := DontCare
     val var19 = Reg(UInt(32.W))
     val var20 = Reg(UInt(32.W))
     val var21 = Reg(UInt(32.W))
@@ -114,6 +102,19 @@ class TopModule extends MultiIOModule {
     when (go) {
       var40 := 0.U
     }
+    val var0 = IO(Output(UInt(1.W)))
+    var0 := false.B
+    val var1 = IO(Output(UInt(11.W)))
+    var1 := DontCare
+    val var3 = IO(Output(UInt(1.W)))
+    var3 := false.B
+    val var4 = IO(Output(UInt(11.W)))
+    var4 := DontCare
+    val var9 = IO(Output(UInt(1.W)))
+    var9 := false.B
+    val var10 = IO(Output(UInt(9.W)))
+    var10 := DontCare
+    val var5 = IO(Input(UInt(32.W)))
     val shift_register = RegInit(0.U(2.W))
     when (go) {
       when (var15 > var16) {
@@ -233,7 +234,7 @@ class TopModule extends MultiIOModule {
       }
       when (counter === 3.U) {
         when (valid(3)) {
-          var22 := var21
+          var22 := var5
         }
         when (valid(3)) {
           var44 := var43
@@ -358,16 +359,6 @@ class TopModule extends MultiIOModule {
     val go = IO(Input(Bool()))
     val done = IO(Output(Bool()))
     done := 0.U
-    val var6 = IO(Output(UInt(1.W)))
-    var6 := false.B
-    val var7 = IO(Output(UInt(9.W)))
-    var7 := DontCare
-    val var12 = IO(Output(UInt(1.W)))
-    var12 := false.B
-    val var13 = IO(Output(UInt(9.W)))
-    var13 := DontCare
-    val var14 = IO(Output(UInt(64.W)))
-    var14 := DontCare
     val var69 = Reg(UInt(1.W))
     val var70 = Reg(UInt(32.W))
     val var71 = Reg(UInt(32.W))
@@ -385,18 +376,31 @@ class TopModule extends MultiIOModule {
     var77 := DontCare
     val var78 = outline_0_0.var18
     val var79 = outline_0_0.done
-    val outline_0_0_var0 = IO(Output(UInt(1.W)))
-    outline_0_0_var0 := outline_0_0.var0
-    val outline_0_0_var1 = IO(Output(UInt(11.W)))
-    outline_0_0_var1 := outline_0_0.var1
-    val outline_0_0_var3 = IO(Output(UInt(1.W)))
-    outline_0_0_var3 := outline_0_0.var3
-    val outline_0_0_var4 = IO(Output(UInt(11.W)))
-    outline_0_0_var4 := outline_0_0.var4
-    val outline_0_0_var9 = IO(Output(UInt(1.W)))
-    outline_0_0_var9 := outline_0_0.var9
-    val outline_0_0_var10 = IO(Output(UInt(9.W)))
-    outline_0_0_var10 := outline_0_0.var10
+    val var0 = IO(Output(UInt(1.W)))
+    var0 := outline_0_0.var0
+    val var1 = IO(Output(UInt(11.W)))
+    var1 := outline_0_0.var1
+    val var3 = IO(Output(UInt(1.W)))
+    var3 := outline_0_0.var3
+    val var4 = IO(Output(UInt(11.W)))
+    var4 := outline_0_0.var4
+    val var9 = IO(Output(UInt(1.W)))
+    var9 := outline_0_0.var9
+    val var10 = IO(Output(UInt(9.W)))
+    var10 := outline_0_0.var10
+    val var5 = IO(Input(UInt(32.W)))
+    outline_0_0.var5 := var5
+    val var6 = IO(Output(UInt(1.W)))
+    var6 := false.B
+    val var7 = IO(Output(UInt(9.W)))
+    var7 := DontCare
+    val var12 = IO(Output(UInt(1.W)))
+    var12 := false.B
+    val var13 = IO(Output(UInt(9.W)))
+    var13 := DontCare
+    val var14 = IO(Output(UInt(64.W)))
+    var14 := DontCare
+    val var8 = IO(Input(UInt(32.W)))
     object State extends ChiselEnum {
       val s0, s1, s1_entry, s2, s3, s4, s5, s6, s6_wait, s7, s8, s8_0, s9, s10 = Value
     }
@@ -492,16 +496,27 @@ class TopModule extends MultiIOModule {
     }
   }
   val main = Module(new main)
+  mem_global_0.dataIn(0).valid := main.var0
+  mem_global_0.dataIn(0).bits := main.var1
+  mem_global_1.dataIn(0).valid := main.var3
+  mem_global_1.dataIn(0).bits := main.var4
+  mem_global_3.dataIn(0).valid := main.var9
+  mem_global_3.dataIn(0).bits := main.var10
   mem_global_2.dataIn(0).valid := main.var6
   mem_global_2.dataIn(0).bits := main.var7
   mem_global_4.dataIn(0).valid := main.var12
   mem_global_4.dataIn(0).bits := main.var13
   mem_global_4.dataIn(0).bits := main.var14
-  mem_global_0.dataIn(0).valid := main.outline_0_0_var0
-  mem_global_0.dataIn(0).bits := main.outline_0_0_var1
-  mem_global_1.dataIn(0).valid := main.outline_0_0_var3
-  mem_global_1.dataIn(0).bits := main.outline_0_0_var4
-  mem_global_3.dataIn(0).valid := main.outline_0_0_var9
-  mem_global_3.dataIn(0).bits := main.outline_0_0_var10
+  val go = IO(Input(Bool()))
+  main.go := go
+  val done = IO(Output(Bool()))
+  done := main.done
+  main.var5 := var5
+  main.var8 := var8
+  val mem_global_4_test_addr = IO(Input(UInt(log2Ceil(494).W)))
+  mem_global_4.test_addr := mem_global_4_test_addr
+  val mem_global_4_test_data = IO(Output(UInt(64.W)))
+  mem_global_4_test_data := mem_global_4.test_data
+  mem_global_4.finished := done
 }
 
