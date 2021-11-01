@@ -309,3 +309,24 @@ object TestDynMem extends ChiselUtestTester {
     }
   }
 }
+
+object TestTopModule extends ChiselUtestTester {
+  val tests = Tests {
+    test("topModule") {
+      testCircuit(
+        new TopModule,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(60000)
+        fork {
+          dut.go.poke(true.B)
+          dut.clock.step()
+        } fork {
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step()
+          }
+        } join()
+      }
+    }
+  }
+}

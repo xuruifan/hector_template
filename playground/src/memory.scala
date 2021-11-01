@@ -59,16 +59,16 @@ class WriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModu
 
   val arb = Module(new MyArbiter(addrWidth + width)(portNum))
 
-  val dataIn = IO(Vec(portNum, Flipped(ValidIO(UInt(width.W)))))
-  val w_dataIn = IO(Vec(portNum, Flipped(BitsWrapper(UInt(addrWidth.W)))))
+  val dataIn = IO(Vec(portNum, Flipped(ValidIO(UInt(addrWidth.W)))))
+  val w_dataIn = IO(Vec(portNum, Flipped(BitsWrapper(UInt(width.W)))))
   for (i <- 0 until portNum) {
     arb.dataIn(i).bits := Cat(dataIn(i).bits, w_dataIn(i).bits)
     arb.dataIn(i).valid := dataIn(i).valid
   }
 
   val w_en = arb.dataOut.valid
-  val addr = arb.dataOut.bits(width - 1, 0)
-  val w_data = arb.dataOut.bits(addrWidth + width - 1, width)
+  val addr = arb.dataOut.bits(addrWidth + width - 1, width)
+  val w_data = arb.dataOut.bits(width - 1, 0)
 
   val finished = IO(Input(Bool()))
   val test_addr = IO(Input(UInt(addrWidth.W)))
@@ -106,7 +106,7 @@ class ReadWriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIO
   readIn <> readArb.dataIn
 
   for (i <- 0 until portNum) {
-    writeArb.dataIn(i).bits := Cat(w_dataIn(i).bits, writeIn(i).bits)
+    writeArb.dataIn(i).bits := Cat(writeIn(i).bits, w_dataIn(i).bits)
     writeArb.dataIn(i).valid := writeIn(i).valid
   }
   //  writeIn <> writeArb.dataIn
@@ -117,8 +117,8 @@ class ReadWriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIO
   val arb = Module(new MyArbiter(addrWidth + width)(2))
   arb.dataIn(0) <> readArb.dataOut
   arb.dataIn(1) <> writeArb.dataOut
-  val addr = arb.dataOut.bits(width - 1, 0)
-  val w_data = arb.dataOut.bits(addrWidth + width - 1, width)
+  val addr = arb.dataOut.bits(addrWidth + width - 1, width)
+  val w_data = arb.dataOut.bits(width - 1, 0)
 
   when(r_en || w_en) {
     val rwPort = mem(addr)
