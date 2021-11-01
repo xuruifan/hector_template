@@ -2,7 +2,7 @@ package hls
 
 import chisel3._
 import chisel3.util._
-import chisel3.experimental._
+// import chisel3.experimental._
 
 import scala.util.Random
 
@@ -13,7 +13,7 @@ class MulFBase(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule
   val width = (expWidth + sigWidth).W
   val operand0 = IO(Input(UInt(width)))
   val operand1 = IO(Input(UInt(width)))
-  val ce = IO(Input(Bool))
+  val ce = IO(Input(Bool()))
 
   val result = IO(Output(UInt(width)))
 
@@ -60,7 +60,7 @@ class AddSubFBase(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean) ext
   val width = (expWidth + sigWidth).W
   val operand0 = IO(Input(UInt(width)))
   val operand1 = IO(Input(UInt(width)))
-  val ce = IO(Input(Bool))
+  val ce = IO(Input(Bool()))
   val result = IO(Output(UInt(width)))
 
   val new_clock = (clock.asUInt()(0) & ce).asClock()
@@ -110,7 +110,7 @@ class CmpFBase(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule
 
   val operand0 = IO(Input(UInt(width)))
   val operand1 = IO(Input(UInt(width)))
-  val ce = IO(Input(Bool))
+  val ce = IO(Input(Bool()))
   val opcode = IO(Input(UInt(5.W)))
 
   val result = IO(Output(Bool()))

@@ -112,7 +112,7 @@ class CmpFTester(c: CmpFBase, latency: Int) extends PeekPokeTester(c) {
       case 6 => queue.enqueue((nums(0) != nums(1)).B)
     }
     step(1)
-    if (i >= latency) {
+    if (i >= latency - 1) {
       val deq = queue.dequeue
       expect(c.result, deq)
     }
