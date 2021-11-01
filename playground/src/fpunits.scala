@@ -9,270 +9,258 @@ import scala.util.Random
 import hardfloat._
 
 class MulFBase(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
-    // Exposed interface
-    val width = (expWidth + sigWidth).W
-    val lhs = IO(Input(UInt(width)))
-    val enable = IO(Input(Bool()))
-    val rhs = IO(Input(UInt(width)))
-    val result = IO(Output(UInt(width)))
-    val done = IO(Output(Bool()))
+  // Exposed interface
+  val width = (expWidth + sigWidth).W
+  val operand0 = IO(Input(UInt(width)))
+  val operand1 = IO(Input(UInt(width)))
+  val ce = IO(Input(Bool))
 
-    val lhs_reg = RegNext(lhs)
-    val rhs_reg = RegNext(rhs)
+  val result = IO(Output(UInt(width)))
+
+  val new_clock = (clock.asUInt()(0) & ce).asClock()
+
+  withClock(new_clock) {
+
+    val operand0_reg = RegNext(operand0)
+    val operand1_reg = RegNext(operand1)
 
     // Connect to core module
 
-    val lhs_rec = recFNFromFN(expWidth, sigWidth, lhs_reg)
-    val rhs_rec = recFNFromFN(expWidth, sigWidth, rhs_reg)
+    val operand0_rec = recFNFromFN(expWidth, sigWidth, operand0_reg)
+    val operand1_rec = recFNFromFN(expWidth, sigWidth, operand1_reg)
     
     val multiplier = Module(new MulRecFN(expWidth, sigWidth))
 
     multiplier.io.roundingMode := consts.round_near_even
     multiplier.io.detectTininess := consts.tininess_afterRounding
 
-    multiplier.io.a := lhs_rec
-    multiplier.io.b := rhs_rec
+    multiplier.io.a := operand0_rec
+    multiplier.io.b := operand1_rec
     
     val output = fNFromRecFN(expWidth, sigWidth, multiplier.io.out)
 
     // shift registers of output
-    if (latency == 1) {
-        result := output
-    } else {
-        val shiftRegs = Reg(Vec(latency - 1, UInt(width)))
-        shiftRegs(0) := output
-        for (i <- 0 until latency - 2) {
-            shiftRegs(i + 1) := shiftRegs(i)
-        }
-        
-        result := shiftRegs(latency - 2)
-    }
 
-    // shift register of enable
-    val enableRegs = RegInit(VecInit(Seq.fill(latency){false.B}))
-    enableRegs(0) := enable
-    for (i <- 0 until latency - 1) {
-        enableRegs(i + 1) := enableRegs(i)
+    if (latency == 1) {
+      result := output
+    } else {
+      val shiftRegs = Reg(Vec(latency - 1, UInt(width)))
+      shiftRegs(0) := output
+      for (i <- 0 until latency - 2) {
+        shiftRegs(i + 1) := shiftRegs(i)
+      }
+      
+      result := shiftRegs(latency - 2)
     }
-    done := enableRegs(latency - 1)
+  }
 }
 
 class AddSubFBase(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean) extends MultiIOModule {
-    // Exposed interface
-    val width = (expWidth + sigWidth).W
-    val lhs = IO(Input(UInt(width)))
-    val enable = IO(Input(Bool()))
-    val rhs = IO(Input(UInt(width)))
-    val result = IO(Output(UInt(width)))
-    val done = IO(Output(Bool()))
+  // Exposed interface
+  val width = (expWidth + sigWidth).W
+  val operand0 = IO(Input(UInt(width)))
+  val operand1 = IO(Input(UInt(width)))
+  val ce = IO(Input(Bool))
+  val result = IO(Output(UInt(width)))
 
-    val lhs_reg = RegNext(lhs)
-    val rhs_reg = RegNext(rhs)
+  val new_clock = (clock.asUInt()(0) & ce).asClock()
+  withClock(new_clock) {
+    val operand0_reg = RegNext(operand0)
+    val operand1_reg = RegNext(operand1)
 
     // Connect to core module
 
-    val lhs_rec = recFNFromFN(expWidth, sigWidth, lhs_reg)
-    val rhs_rec = recFNFromFN(expWidth, sigWidth, rhs_reg)
+    val operand0_rec = recFNFromFN(expWidth, sigWidth, operand0_reg)
+    val operand1_rec = recFNFromFN(expWidth, sigWidth, operand1_reg)
 
     val adder = Module(new AddRecFN(expWidth, sigWidth))
 
     if (mode == true) {
-        adder.io.subOp := false.B
+      adder.io.subOp := false.B
     } else {
-        adder.io.subOp := true.B
+      adder.io.subOp := true.B
     }
 
     adder.io.roundingMode := consts.round_near_even
     adder.io.detectTininess := consts.tininess_afterRounding
 
-    adder.io.a := lhs_rec
-    adder.io.b := rhs_rec
+    adder.io.a := operand0_rec
+    adder.io.b := operand1_rec
     
     val output = fNFromRecFN(expWidth, sigWidth, adder.io.out)
 
     // shift registers of output
     if (latency == 1) {
-        result := output
+      result := output
     } else {
-        val shiftRegs = Reg(Vec(latency - 1, UInt(width)))
-        shiftRegs(0) := output
-        for (i <- 0 until latency - 2) {
-            shiftRegs(i + 1) := shiftRegs(i)
-        }
-        
-        result := shiftRegs(latency - 2)
+      val shiftRegs = Reg(Vec(latency - 1, UInt(width)))
+      shiftRegs(0) := output
+      for (i <- 0 until latency - 2) {
+        shiftRegs(i + 1) := shiftRegs(i)
+      }
+      
+      result := shiftRegs(latency - 2)
     }
-
-    // shift register of enable
-    val enableRegs = RegInit(VecInit(Seq.fill(latency){false.B}))
-    enableRegs(0) := enable
-    for (i <- 0 until latency - 1) {
-        enableRegs(i + 1) := enableRegs(i)
-    }
-    done := enableRegs(latency - 1)
+  }
 }
 
 class CmpFBase(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
-    // Exposed interface
-    val width = (expWidth + sigWidth).W
+  // Exposed interface
+  val width = (expWidth + sigWidth).W
 
-    val lhs = IO(Input(UInt(width)))
-    val rhs = IO(Input(UInt(width)))
-    val opcode = IO(Input(UInt(5.W)))
-    val enable = IO(Input(Bool()))
+  val operand0 = IO(Input(UInt(width)))
+  val operand1 = IO(Input(UInt(width)))
+  val ce = IO(Input(Bool))
+  val opcode = IO(Input(UInt(5.W)))
 
-    val result = IO(Output(Bool()))
-    val done = IO(Output(Bool()))
+  val result = IO(Output(Bool()))
 
-    val lhs_reg = RegNext(lhs)
-    val rhs_reg = RegNext(rhs)
+  val new_clock = (clock.asUInt()(0) & ce).asClock()
+
+  withClock(new_clock) {
+    val operand0_reg = RegNext(operand0)
+    val operand1_reg = RegNext(operand1)
 
     // Connect to core module
 
-    val lhs_rec = recFNFromFN(expWidth, sigWidth, lhs_reg)
-    val rhs_rec = recFNFromFN(expWidth, sigWidth, rhs_reg)
+    val operand0_rec = recFNFromFN(expWidth, sigWidth, operand0_reg)
+    val operand1_rec = recFNFromFN(expWidth, sigWidth, operand1_reg)
 
     val comparator = Module(new CompareRecFN(expWidth, sigWidth))
 
-    comparator.io.a := lhs_rec
-    comparator.io.b := rhs_rec
+    comparator.io.a := operand0_rec
+    comparator.io.b := operand1_rec
     comparator.io.signaling := false.B
 
     val output = Wire(Bool())
     when (opcode === "b00001".U) {
-        // EQ
-        output := comparator.io.eq
+      // EQ
+      output := comparator.io.eq
     } .elsewhen (opcode === "b00010".U) {
-        // GT
-        output := comparator.io.gt
+      // GT
+      output := comparator.io.gt
     } .elsewhen (opcode === "b00011".U) {
-        // GE
-        output := comparator.io.gt || comparator.io.eq
+      // GE
+      output := comparator.io.gt || comparator.io.eq
     } .elsewhen (opcode === "b00100".U) {
-        // LT
-        output := comparator.io.lt
+      // LT
+      output := comparator.io.lt
     } .elsewhen (opcode === "b00101".U) {
-        // LE
-        output := comparator.io.lt || comparator.io.eq
+      // LE
+      output := comparator.io.lt || comparator.io.eq
     } .elsewhen (opcode === "b00110".U) {
-        // NE
-        output := !comparator.io.eq
+      // NE
+      output := !comparator.io.eq
     } .otherwise {
-        output := true.B
+      output := true.B
     }
 
     // shift registers of output
     if (latency == 1) {
-        result := output
+      result := output
     } else {
-        val shiftRegs = Reg(Vec(latency - 1, Bool()))
-        shiftRegs(0) := output
-        for (i <- 0 until latency - 2) {
-            shiftRegs(i + 1) := shiftRegs(i)
-        }
-        
-        result := shiftRegs(latency - 2)
+      val shiftRegs = Reg(Vec(latency - 1, Bool()))
+      shiftRegs(0) := output
+      for (i <- 0 until latency - 2) {
+        shiftRegs(i + 1) := shiftRegs(i)
+      }
+      
+      result := shiftRegs(latency - 2)
     }
-
-    // shift register of enable
-    val enableRegs = RegInit(VecInit(Seq.fill(latency){false.B}))
-    enableRegs(0) := enable
-    for (i <- 0 until latency - 1) {
-        enableRegs(i + 1) := enableRegs(i)
-    }
-    done := enableRegs(latency - 1)
+  }
 }
+
 //===----------------------------------------------------------------------===//
 /// Wrapper for Vivado IP
 //===----------------------------------------------------------------------===//
 
 class VivadoBinaryIP(width: Int) extends BlackBox {
-    val io = IO(new Bundle{
-        val aclk = Input(Clock())
-        val aclken = Input(Bool())
-        val s_axis_a_tdata = Input(UInt(width.W))
-        val s_axis_a_tvalid = Input(UInt(width.W))
-        val s_axis_b_tdata = Input(UInt(width.W))
-        val s_axis_b_tvalid = Input(UInt(width.W))
-        val m_axis_result_tvalid = Output(Bool())
-        val m_axis_result_tdata = Output(UInt(width.W))
-    }) 
+  val io = IO(new Bundle{
+    val aclk = Input(Clock())
+    val aclken = Input(Bool())
+    val s_axis_a_tdata = Input(UInt(width.W))
+    val s_axis_a_tvalid = Input(UInt(width.W))
+    val s_axis_b_tdata = Input(UInt(width.W))
+    val s_axis_b_tvalid = Input(UInt(width.W))
+    val m_axis_result_tvalid = Output(Bool())
+    val m_axis_result_tdata = Output(UInt(width.W))
+  })
 }
 
 class VivadoFCMPIP(width: Int) extends BlackBox {
-    val io = IO(new Bundle{
-        val aclken = Input(Bool())
-        val s_axis_a_tdata = Input(UInt(width.W))
-        val s_axis_a_tvalid = Input(UInt(width.W))
-        val s_axis_b_tdata = Input(UInt(width.W))
-        val s_axis_b_tvalid = Input(UInt(width.W))
-        val s_axis_operation_tdata = Input(UInt(8.W))
-        val s_axis_operation_tvalid = Input(Bool())
-        val m_axis_result_tvalid = Output(Bool())
-        val m_axis_result_tdata = Output(Bool())
-    })
+  val io = IO(new Bundle{
+    val aclken = Input(Bool())
+    val s_axis_a_tdata = Input(UInt(width.W))
+    val s_axis_a_tvalid = Input(UInt(width.W))
+    val s_axis_b_tdata = Input(UInt(width.W))
+    val s_axis_b_tvalid = Input(UInt(width.W))
+    val s_axis_operation_tdata = Input(UInt(8.W))
+    val s_axis_operation_tvalid = Input(Bool())
+    val m_axis_result_tvalid = Output(Bool())
+    val m_axis_result_tdata = Output(Bool())
+  })
 }
 
 class ComponentWrapper[T <: VivadoBinaryIP](genT: => T, width: Int) extends MultiIOModule {
-    val operand0 = IO(Input(UInt(width.W)))
-    val operand1 = IO(Input(UInt(width.W)))
-    val enable = IO(Input(Bool()))
-    val result = IO(Output(UInt(width.W)))
-    val valid = IO(Output(Bool()))
+  val operand0 = IO(Input(UInt(width.W)))
+  val operand1 = IO(Input(UInt(width.W)))
+  val enable = IO(Input(Bool()))
+  val result = IO(Output(UInt(width.W)))
+  val valid = IO(Output(Bool()))
 
-    val IPCore = Module(genT)
+  val IPCore = Module(genT)
 
-    val operand0Reg = Reg(UInt(width.W))
-    val operand1Reg = Reg(UInt(width.W))
-    val enableReg = RegNext(enable)
+  val operand0Reg = Reg(UInt(width.W))
+  val operand1Reg = Reg(UInt(width.W))
+  val enableReg = RegNext(enable)
 
-    when (enable) {
-        operand0Reg := operand0
-        operand1Reg := operand1
-    }
+  when (enable) {
+    operand0Reg := operand0
+    operand1Reg := operand1
+  }
 
-    IPCore.io.aclk := clock
-    IPCore.io.aclken := enableReg
-    IPCore.io.s_axis_a_tdata := operand0Reg
-    IPCore.io.s_axis_a_tvalid := true.B
-    IPCore.io.s_axis_b_tdata := operand1Reg
-    IPCore.io.s_axis_b_tvalid := true.B
-    result := IPCore.io.m_axis_result_tdata
-    valid := IPCore.io.m_axis_result_tvalid
+  IPCore.io.aclk := clock
+  IPCore.io.aclken := enableReg
+  IPCore.io.s_axis_a_tdata := operand0Reg
+  IPCore.io.s_axis_a_tvalid := true.B
+  IPCore.io.s_axis_b_tdata := operand1Reg
+  IPCore.io.s_axis_b_tvalid := true.B
+  result := IPCore.io.m_axis_result_tdata
+  valid := IPCore.io.m_axis_result_tvalid
 }
 
 class CMPWrapper[T <: VivadoFCMPIP](genT: => T, width: Int) extends MultiIOModule() {
 
-    val operand0 = IO(Input(UInt(width.W)))
-    val operand1 = IO(Input(UInt(width.W)))
-    val opcode = IO(Input(UInt(8.W)))
-    val enable = IO(Input(Bool()))
-    val result = IO(Output(Bool()))
-    val valid = IO(Output(Bool()))
+  val operand0 = IO(Input(UInt(width.W)))
+  val operand1 = IO(Input(UInt(width.W)))
+  val opcode = IO(Input(UInt(8.W)))
+  val enable = IO(Input(Bool()))
+  val result = IO(Output(Bool()))
+  val valid = IO(Output(Bool()))
 
-    val IPCore = Module(genT)
+  val IPCore = Module(genT)
 
-    val operand0Reg = Reg(UInt(width.W))
-    val operand1Reg = Reg(UInt(width.W))
-    val opcodeReg = Reg(UInt(8.W))
-    val enableReg = RegNext(enable)
+  val operand0Reg = Reg(UInt(width.W))
+  val operand1Reg = Reg(UInt(width.W))
+  val opcodeReg = Reg(UInt(8.W))
+  val enableReg = RegNext(enable)
 
-    when (enable) {
-        operand0Reg := operand0
-        operand1Reg := operand1
-        opcodeReg := opcode
-    }
+  when (enable) {
+    operand0Reg := operand0
+    operand1Reg := operand1
+    opcodeReg := opcode
+  }
 
-    IPCore.io.aclken := enableReg
-    IPCore.io.s_axis_a_tdata := operand0Reg
-    IPCore.io.s_axis_a_tvalid := true.B
-    IPCore.io.s_axis_b_tdata := operand1Reg
-    IPCore.io.s_axis_b_tvalid := true.B
-    IPCore.io.s_axis_operation_tdata := opcodeReg
-    IPCore.io.s_axis_operation_tvalid := true.B
+  IPCore.io.aclken := enableReg
+  IPCore.io.s_axis_a_tdata := operand0Reg
+  IPCore.io.s_axis_a_tvalid := true.B
+  IPCore.io.s_axis_b_tdata := operand1Reg
+  IPCore.io.s_axis_b_tvalid := true.B
+  IPCore.io.s_axis_operation_tdata := opcodeReg
+  IPCore.io.s_axis_operation_tvalid := true.B
 
-    result := IPCore.io.m_axis_result_tdata
-    valid := IPCore.io.m_axis_result_tvalid
+  result := IPCore.io.m_axis_result_tdata
+  valid := IPCore.io.m_axis_result_tvalid
 }
 
 class FP64MulIP extends VivadoBinaryIP(64)
