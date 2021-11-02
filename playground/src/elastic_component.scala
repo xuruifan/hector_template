@@ -389,3 +389,19 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
 
   }
 }
+
+class DelayBuffer(latency: Int, size: Int = 32) extends MultiIOModule {
+  val valid_in = IO(Input(UInt(size.W)))
+  val ready_in = IO(Input(Bool()))
+  val valid_out = IO(Output(UInt(size.W)))
+
+  val shift_register = RegInit(VecInit(Seq.fill(latency)(0.U(size.W))))
+
+  when(ready_in) {
+    shift_register(0) := valid_in
+    for (i <- 1 until latency) {
+      shift_register(i) := shift_register(i - 1)
+    }
+  }
+  valid_out := shift_register(latency - 1)
+}
