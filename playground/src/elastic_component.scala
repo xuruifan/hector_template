@@ -301,7 +301,27 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
   val store_address = IO(Vec(storeNum, Flipped(DecoupledIO(UInt(addrWidth.W)))))
   val store_data = IO(Vec(storeNum, Flipped(DecoupledIO(UInt(width.W)))))
 
-  val mem = Module(new ReadWriteMem(size, width))
+  class insideMemory(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModule with InitMem {
+    val mem = SyncReadMem(size, UInt(width.W))
+    private val addrWidth = log2Ceil(size)
+    val r_en = IO(Input(Bool()))
+    val w_en = IO(Input(Bool()))
+    val addr = IO(Input(UInt(addrWidth.W)))
+    val w_data = IO(Input(UInt(width.W)))
+    val r_data = IO(Output(UInt(width.W)))
+    r_data := DontCare
+
+    when(r_en || w_en) {
+      val rwPort = mem(addr)
+      when(w_en) {
+        rwPort := w_data
+      }.otherwise {
+        r_data := rwPort
+      }
+    }
+  }
+
+  val mem = Module(new insideMemory(size, width))
 
   def initMem(memoryFile: String) = mem.initMem(memoryFile)
 
