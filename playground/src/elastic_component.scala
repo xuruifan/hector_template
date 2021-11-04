@@ -279,6 +279,9 @@ class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   val address_out = IO(DecoupledIO(UInt(width.W)))
   val data_in = IO(Flipped(DecoupledIO(UInt(size.W))))
+
+  address_in <> address_out
+  data_in <> data_out
 }
 
 class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
@@ -287,6 +290,9 @@ class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   val address_out = IO(DecoupledIO(UInt(width.W)))
   val data_out = IO(DecoupledIO(UInt(size.W)))
+
+  address_in <> address_out
+  data_in <> data_out
 }
 
 class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) extends MultiIOModule {
@@ -321,6 +327,11 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
     }
   }
 
+  val finish = IO(Input(Bool()))
+  val read_address = IO(Input(UInt(addrWidth.W)))
+  val out_data = IO(Output(UInt(width.W)))
+  out_data := DontCare
+
   val mem = Module(new insideMemory(size, width))
 
   def initMem(memoryFile: String) = mem.initMem(memoryFile)
@@ -333,12 +344,8 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
     store_address(0).ready := join.ready(0)
     store_data(0).ready := join.ready(1)
     join.nReady := true.B
-
-    val finish = IO(Input(Bool()))
-    val read_address = IO(Input(UInt(addrWidth.W)))
-    val out_data = IO(Output(UInt(width.W)))
-    out_data := DontCare
     mem.r_en := !finish
+
     when(finish) {
       mem.addr := read_address
       mem.w_en := false.B
@@ -358,19 +365,21 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
       val tehb = Module(new TEHB(width))
       tehb.dataIn.bits := DontCare
       tehb.dataIn.valid := false.B
+      tehb.dataOut <> load_data(i)
       tehb
     }
     //    val load_valid = (load_address zip load_data).map(x => x._1.valid & x._2.ready)
-    val load_valid = (load_address zip buffer).map(x => x._1.valid & x._2.dataOut.ready)
+    //    val load_valid = (load_address zip buffer).map(x => x._1.valid & x._2.dataOut.ready)
     val arb = Module(new Arbiter(UInt(addrWidth.W), loadNum))
     arb.io.out.ready := true.B
     for (i <- 0 until loadNum) {
-      arb.io.in(i).valid := load_valid(i)
+      //      arb.io.in(i).valid := load_valid(i)
+      arb.io.in(i).valid := load_address(i).valid & buffer(i).dataIn.ready
       arb.io.in(i).bits := load_address(i).bits
       load_address(i).ready := arb.io.in(i).ready
-      load_data(i).bits := DontCare
-      load_data(i).valid := false.B
-      buffer(i).dataOut <> load_data(i)
+      //      load_data(i).bits := DontCare
+      //      load_data(i).valid := false.B
+      //      buffer(i).dataOut <> load_data(i)
     }
     val select = Reg(UInt(log2Ceil(loadNum).W))
     val valid = RegInit(false.B)
