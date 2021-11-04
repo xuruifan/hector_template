@@ -13,7 +13,7 @@ import chiseltest.internal.{VerilatorBackendAnnotation, WriteVcdAnnotation}
 object Elaborate extends App {
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new branch_prediction())))
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
-  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new TopModule())))
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new spmv())))
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new ReadWriteMem(1024))))
 }
 
@@ -252,9 +252,9 @@ object TestBuffer extends ChiselUtestTester {
       }
     }
   }
-}
-*/
-class dynMemWrapper extends MultiIOModule with dynamicDelay {
+}*/
+
+/*class dynMemWrapper extends MultiIOModule with dynamicDelay {
   val addr = IO(Vec(2, Flipped(DecoupledIO(UInt(8.W)))))
   val data = IO(Vec(2, DecoupledIO(UInt(32.W))))
 
@@ -308,7 +308,7 @@ object TestDynMem extends ChiselUtestTester {
       }
     }
   }
-}
+}*/
 
 object TestTopModule extends ChiselUtestTester {
   val tests = Tests {
@@ -330,3 +330,18 @@ object TestTopModule extends ChiselUtestTester {
     }
   }
 }
+
+object TestSpmv extends ChiselUtestTester {
+  val tests = Tests {
+    test("spmv") {
+      testCircuit(
+        new spmv,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(60000)
+        dut.clock.step(1000)
+      }
+    }
+  }
+}
+

@@ -274,25 +274,47 @@ class Const(size: Int = 32) extends MultiIOModule {
 }
 
 class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
-  val address_in = IO(Flipped(DecoupledIO(UInt(width.W))))
-  val data_out = IO(DecoupledIO(UInt(size.W)))
+  private val addrWidth = log2Ceil(size)
+  val address_in = IO(Flipped(DecoupledIO(UInt(addrWidth.W))))
+  val data_out = IO(DecoupledIO(UInt(width.W)))
 
-  val address_out = IO(DecoupledIO(UInt(width.W)))
-  val data_in = IO(Flipped(DecoupledIO(UInt(size.W))))
+  val address_out = IO(DecoupledIO(UInt(addrWidth.W)))
+  val data_in = IO(Flipped(DecoupledIO(UInt(width.W))))
 
   address_in <> address_out
   data_in <> data_out
 }
 
 class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
-  val address_in = IO(Flipped(DecoupledIO(UInt(width.W))))
-  val data_in = IO(Flipped(DecoupledIO(UInt(size.W))))
+  private val addrWidth = log2Ceil(size)
+  val address_in = IO(Flipped(DecoupledIO(UInt(addrWidth.W))))
+  val data_in = IO(Flipped(DecoupledIO(UInt(width.W))))
 
-  val address_out = IO(DecoupledIO(UInt(width.W)))
-  val data_out = IO(DecoupledIO(UInt(size.W)))
+  val address_out = IO(DecoupledIO(UInt(addrWidth.W)))
+  val data_out = IO(DecoupledIO(UInt(width.W)))
 
   address_in <> address_out
   data_in <> data_out
+}
+
+class insideMemory(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModule with InitMem {
+  val mem = SyncReadMem(size, UInt(width.W))
+  private val addrWidth = log2Ceil(size)
+  val r_en = IO(Input(Bool()))
+  val w_en = IO(Input(Bool()))
+  val addr = IO(Input(UInt(addrWidth.W)))
+  val w_data = IO(Input(UInt(width.W)))
+  val r_data = IO(Output(UInt(width.W)))
+  r_data := DontCare
+
+  when(r_en || w_en) {
+    val rwPort = mem(addr)
+    when(w_en) {
+      rwPort := w_data
+    }.otherwise {
+      r_data := rwPort
+    }
+  }
 }
 
 class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) extends MultiIOModule {
@@ -307,25 +329,6 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
   val store_address = IO(Vec(storeNum, Flipped(DecoupledIO(UInt(addrWidth.W)))))
   val store_data = IO(Vec(storeNum, Flipped(DecoupledIO(UInt(width.W)))))
 
-  class insideMemory(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModule with InitMem {
-    val mem = SyncReadMem(size, UInt(width.W))
-    private val addrWidth = log2Ceil(size)
-    val r_en = IO(Input(Bool()))
-    val w_en = IO(Input(Bool()))
-    val addr = IO(Input(UInt(addrWidth.W)))
-    val w_data = IO(Input(UInt(width.W)))
-    val r_data = IO(Output(UInt(width.W)))
-    r_data := DontCare
-
-    when(r_en || w_en) {
-      val rwPort = mem(addr)
-      when(w_en) {
-        rwPort := w_data
-      }.otherwise {
-        r_data := rwPort
-      }
-    }
-  }
 
   val finish = IO(Input(Bool()))
   val read_address = IO(Input(UInt(addrWidth.W)))
