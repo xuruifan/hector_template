@@ -1,4 +1,5 @@
-// import Mill dependency
+// import Mill dependenc
+import $ivy.`com.lihaoyi::mill-contrib-bloop:0.9.9`
 import mill._
 import mill.scalalib._
 import mill.scalalib.scalafmt.ScalafmtModule
