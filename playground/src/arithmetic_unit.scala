@@ -111,7 +111,7 @@ class MulFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   buff.ready_in := oehb.dataIn.ready
 
   oehb.dataIn.bits := DontCare
-  oehb.dataOut.ready := DontCare
+  oehb.dataOut.ready := result.ready
   oehb.dataIn.valid := buff.valid_out
   result.valid := oehb.dataOut.valid
 
@@ -143,7 +143,7 @@ class AddFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   buff.ready_in := oehb.dataIn.ready
 
   oehb.dataIn.bits := DontCare
-  oehb.dataOut.ready := DontCare
+  oehb.dataOut.ready := result.ready
   oehb.dataIn.valid := buff.valid_out
   result.valid := oehb.dataOut.valid
 
@@ -175,7 +175,7 @@ class SubFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   buff.ready_in := oehb.dataIn.ready
 
   oehb.dataIn.bits := DontCare
-  oehb.dataOut.ready := DontCare
+  oehb.dataOut.ready := result.ready
   oehb.dataIn.valid := buff.valid_out
   result.valid := oehb.dataOut.valid
 
@@ -207,7 +207,7 @@ class CmpFDynamic(latency: Int, expWidth: Int, sigWidth: Int)(opcode: UInt) exte
   buff.ready_in := oehb.dataIn.ready
 
   oehb.dataIn.bits := DontCare
-  oehb.dataOut.ready := DontCare
+  oehb.dataOut.ready := result.ready
   oehb.dataIn.valid := buff.valid_out
   result.valid := oehb.dataOut.valid
 
