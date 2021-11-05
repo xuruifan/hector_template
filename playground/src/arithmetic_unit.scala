@@ -89,3 +89,132 @@ class LessthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ < _) {}
 class LessEqualthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ <= _) {}
 
 class EqualIDynamic(width: Int = 32) extends CmpIDynamic(width, _ === _) {}
+
+class MulFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val operand0 = IO(Flipped(DecoupledIO(UInt(width))))
+  val operand1 = IO(Flipped(DecoupledIO(UInt(width))))
+
+  val result = IO(DecoupledIO(UInt(width)))
+
+  private val join = Module(new Join())
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  join.pValid(0) := operand0.valid
+  join.pValid(1) := operand1.valid
+  operand0.ready := join.ready(0)
+  operand1.ready := join.ready(1)
+  join.nReady := oehb.dataIn.ready
+
+  buff.valid_in := join.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val mulf = Module(new MulFBase(latency, expWidth, sigWidth))
+  mulf.ce := oehb.dataIn.ready
+  mulf.operand0 := operand0.bits
+  mulf.operand1 := operand1.bits
+  result.bits := mulf.result
+}
+
+class AddFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val operand0 = IO(Flipped(DecoupledIO(UInt(width))))
+  val operand1 = IO(Flipped(DecoupledIO(UInt(width))))
+
+  val result = IO(DecoupledIO(UInt(width)))
+
+  private val join = Module(new Join())
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  join.pValid(0) := operand0.valid
+  join.pValid(1) := operand1.valid
+  operand0.ready := join.ready(0)
+  operand1.ready := join.ready(1)
+  join.nReady := oehb.dataIn.ready
+
+  buff.valid_in := join.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val addf = Module(new AddSubFBase(latency, expWidth, sigWidth, true))
+  addf.ce := oehb.dataIn.ready
+  addf.operand0 := operand0.bits
+  addf.operand1 := operand1.bits
+  result.bits := addf.result
+}
+
+class SubFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val operand0 = IO(Flipped(DecoupledIO(UInt(width))))
+  val operand1 = IO(Flipped(DecoupledIO(UInt(width))))
+
+  val result = IO(DecoupledIO(UInt(width)))
+
+  private val join = Module(new Join())
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  join.pValid(0) := operand0.valid
+  join.pValid(1) := operand1.valid
+  operand0.ready := join.ready(0)
+  operand1.ready := join.ready(1)
+  join.nReady := oehb.dataIn.ready
+
+  buff.valid_in := join.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val subf = Module(new AddSubFBase(latency, expWidth, sigWidth, false))
+  subf.ce := oehb.dataIn.ready
+  subf.operand0 := operand0.bits
+  subf.operand1 := operand1.bits
+  result.bits := subf.result
+}
+
+class CmpFDynamic(latency: Int, expWidth: Int, sigWidth: Int)(opcode: UInt) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val operand0 = IO(Flipped(DecoupledIO(UInt(width))))
+  val operand1 = IO(Flipped(DecoupledIO(UInt(width))))
+
+  val result = IO(DecoupledIO(UInt(width)))
+
+  private val join = Module(new Join())
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  join.pValid(0) := operand0.valid
+  join.pValid(1) := operand1.valid
+  operand0.ready := join.ready(0)
+  operand1.ready := join.ready(1)
+  join.nReady := oehb.dataIn.ready
+
+  buff.valid_in := join.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val subf = Module(new CmpFBase(latency, expWidth, sigWidth))
+  subf.opcode := opcode
+  subf.ce := oehb.dataIn.ready
+  subf.operand0 := operand0.bits
+  subf.operand1 := operand1.bits
+  result.bits := subf.result
+}

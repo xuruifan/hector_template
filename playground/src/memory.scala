@@ -120,7 +120,14 @@ class ReadWriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIO
   val addr = arb.dataOut.bits(addrWidth + width - 1, width)
   val w_data = arb.dataOut.bits(width - 1, 0)
 
-  when(r_en || w_en) {
+  val finished = IO(Input(Bool()))
+  val test_addr = IO(Input(UInt(addrWidth.W)))
+  val test_data = IO(Output(UInt(width.W)))
+  test_data := DontCare
+
+  when(finished) {
+    test_data := mem.read(test_addr)
+  }.elsewhen(r_en || w_en) {
     val rwPort = mem(addr)
     when(w_en) {
       rwPort := w_data
