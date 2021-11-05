@@ -98,8 +98,8 @@ class MulFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   val result = IO(DecoupledIO(UInt(width)))
 
   private val join = Module(new Join())
-  private val buff = Module(new DelayBuffer(latency, 1))
-  private val oehb = Module(new OEHB(expWidth + sigWidth))
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
 
   join.pValid(0) := operand0.valid
   join.pValid(1) := operand1.valid
@@ -130,8 +130,8 @@ class AddFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   val result = IO(DecoupledIO(UInt(width)))
 
   private val join = Module(new Join())
-  private val buff = Module(new DelayBuffer(latency, 1))
-  private val oehb = Module(new OEHB(expWidth + sigWidth))
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
 
   join.pValid(0) := operand0.valid
   join.pValid(1) := operand1.valid
@@ -162,8 +162,8 @@ class SubFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   val result = IO(DecoupledIO(UInt(width)))
 
   private val join = Module(new Join())
-  private val buff = Module(new DelayBuffer(latency, 1))
-  private val oehb = Module(new OEHB(expWidth + sigWidth))
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
 
   join.pValid(0) := operand0.valid
   join.pValid(1) := operand1.valid
@@ -194,8 +194,8 @@ class CmpFDynamic(latency: Int, expWidth: Int, sigWidth: Int)(opcode: UInt) exte
   val result = IO(DecoupledIO(UInt(width)))
 
   private val join = Module(new Join())
-  private val buff = Module(new DelayBuffer(latency, 1))
-  private val oehb = Module(new OEHB(expWidth + sigWidth))
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
 
   join.pValid(0) := operand0.valid
   join.pValid(1) := operand1.valid
