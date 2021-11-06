@@ -218,3 +218,13 @@ class CmpFDynamic(latency: Int, expWidth: Int, sigWidth: Int)(opcode: UInt) exte
   subf.operand1 := operand1.bits
   result.bits := subf.result
 }
+
+class Constant(size: Int = 32) extends MultiIOModule {
+  val control = IO(Flipped(DecoupledIO(UInt(0.W))))
+  val dataIn = IO(Flipped(DecoupledIO(UInt(size.W))))
+  val dataOut = IO(DecoupledIO(UInt(size.W)))
+
+  control <> dataOut
+  dataOut.bits := dataIn.bits
+  dataIn.ready := true.B
+}
