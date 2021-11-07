@@ -106,7 +106,7 @@ class ReadWriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIO
   readIn <> readArb.dataIn
 
   for (i <- 0 until portNum) {
-    writeArb.dataIn(i).bits := Cat(writeIn(i).bits, w_dataIn(i).bits)
+    writeArb.dataIn(i).bits := Cat(w_dataIn(i).bits, writeIn(i).bits)
     writeArb.dataIn(i).valid := writeIn(i).valid
   }
   //  writeIn <> writeArb.dataIn
@@ -117,8 +117,8 @@ class ReadWriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIO
   val arb = Module(new MyArbiter(addrWidth + width)(2))
   arb.dataIn(0) <> readArb.dataOut
   arb.dataIn(1) <> writeArb.dataOut
-  val addr = arb.dataOut.bits(addrWidth + width - 1, width)
-  val w_data = arb.dataOut.bits(width - 1, 0)
+  val addr = arb.dataOut.bits(addrWidth - 1, 0)
+  val w_data = arb.dataOut.bits(addrWidth + width - 1, addrWidth)
 
   val finished = IO(Input(Bool()))
   val test_addr = IO(Input(UInt(addrWidth.W)))

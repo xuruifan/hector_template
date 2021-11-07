@@ -28,6 +28,7 @@ class ellpack extends MultiIOModule {
   mem_global_0.initMem("spmv_ellpack/in_0.txt");
   mem_global_1.initMem("spmv_ellpack/in_1.txt");
   mem_global_2.initMem("spmv_ellpack/in_2.txt");
+  mem_global_3.initMem("spmv_ellpack/in_3.txt");
   class outline_0 extends MultiIOModule {
     val go = IO(Input(Bool()))
     val start = RegInit(false.B)
@@ -46,7 +47,7 @@ class ellpack extends MultiIOModule {
     val var21 = Reg(UInt(32.W))
     val var22 = Reg(UInt(32.W))
     val var23 = Reg(UInt(32.W))
-    val var24 = Reg(UInt(32.W))
+    val var24 = Reg(UInt(64.W))
     val var25 = Reg(UInt(32.W))
     val var26 = Reg(UInt(32.W))
     val var27 = Reg(UInt(32.W))
@@ -68,11 +69,11 @@ class ellpack extends MultiIOModule {
     val var43 = Reg(UInt(32.W))
     val var44 = Reg(UInt(32.W))
     val var45 = Reg(UInt(32.W))
-    val var46 = Reg(UInt(64.W))
-    val var47 = Reg(UInt(64.W))
-    val var48 = Reg(UInt(64.W))
-    val var49 = Reg(UInt(64.W))
-    val var50 = Reg(UInt(64.W))
+    val var46 = Reg(UInt(32.W))
+    val var47 = Reg(UInt(32.W))
+    val var48 = Reg(UInt(32.W))
+    val var49 = Reg(UInt(32.W))
+    val var50 = Reg(UInt(32.W))
     val var51 = Reg(UInt(64.W))
     val var52 = Reg(UInt(64.W))
     val var53 = Reg(UInt(64.W))
@@ -90,33 +91,38 @@ class ellpack extends MultiIOModule {
     val var65 = Reg(UInt(64.W))
     val var66 = Reg(UInt(64.W))
     val var67 = Reg(UInt(64.W))
-    val var68 = Reg(UInt(32.W))
+    val var68 = Reg(UInt(64.W))
     val var69 = Reg(UInt(64.W))
     val var70 = Reg(UInt(64.W))
     val var71 = Reg(UInt(64.W))
+    val var72 = Reg(UInt(64.W))
+    val var73 = Reg(UInt(32.W))
+    val var74 = Reg(UInt(64.W))
+    val var75 = Reg(UInt(64.W))
+    val var76 = Reg(UInt(64.W))
     val muli_outline_0_0 = Module(new MulI())
-    val var72 = muli_outline_0_0.operand0
-    var72 := DontCare
-    val var73 = muli_outline_0_0.operand1
-    var73 := DontCare
-    val var74 = muli_outline_0_0.result
+    val var77 = muli_outline_0_0.operand0
+    var77 := DontCare
+    val var78 = muli_outline_0_0.operand1
+    var78 := DontCare
+    val var79 = muli_outline_0_0.result
     val mulf_outline_0_0 = Module(new MulFBase(6, 11, 53))
     mulf_outline_0_0.ce := true.B
-    val var75 = mulf_outline_0_0.operand0
-    var75 := DontCare
-    val var76 = mulf_outline_0_0.operand1
-    var76 := DontCare
-    val var77 = mulf_outline_0_0.result
+    val var80 = mulf_outline_0_0.operand0
+    var80 := DontCare
+    val var81 = mulf_outline_0_0.operand1
+    var81 := DontCare
+    val var82 = mulf_outline_0_0.result
     val addf_outline_0_0 = Module(new AddSubFBase(10, 11, 53, true))
     addf_outline_0_0.ce := true.B
-    val var78 = addf_outline_0_0.operand0
-    var78 := DontCare
-    val var79 = addf_outline_0_0.operand1
-    var79 := DontCare
-    val var80 = addf_outline_0_0.result
-    val var81 = Reg(UInt(32.W))
+    val var83 = addf_outline_0_0.operand0
+    var83 := DontCare
+    val var84 = addf_outline_0_0.operand1
+    var84 := DontCare
+    val var85 = addf_outline_0_0.result
+    val var86 = Reg(UInt(32.W))
     when (go) {
-      var81 := var14
+      var86 := var14
     }
     when (go) {
       var20 := var14
@@ -128,7 +134,13 @@ class ellpack extends MultiIOModule {
       var22 := var16
     }
     when (go) {
-      var46 := var18
+      var23 := var17
+    }
+    when (go) {
+      var24 := var18
+    }
+    when (go) {
+      var51 := var18
     }
     val var0 = IO(Output(UInt(1.W)))
     var0 := false.B
@@ -222,73 +234,88 @@ class ellpack extends MultiIOModule {
       shift_register := Cat(shift_register(1, 0), new_input)
     }
     when (counter === 0.U) {
-      when (valid(11)) {
-	var31 := var30
+      when (valid(0)) {
+	var25 := var86
       }
       when (valid(11)) {
-	var57 := var56
+	var36 := var35
+      }
+      when (valid(11)) {
+	var62 := var61
       }
       when (valid(22)) {
-	var42 := var41
+	var47 := var46
       }
     }
     when (counter === 1.U) {
-      var72 := var23
-      var73 := 10.U
+      var77 := var23
+      var78 := 10.U
       when (valid(1)) {
-	var47 := var46
+	var26 := var25
+      }
+      when (valid(1)) {
+	var52 := var51
       }
       when (valid(12)) {
-	var32 := var31
+	var37 := var36
       }
       when (valid(12)) {
-	var58 := var57
+	var63 := var62
       }
       when (valid(23)) {
-	var43 := var42
+	var48 := var47
       }
     }
     when (counter === 2.U) {
       when (valid(2)) {
-	var48 := var47
+	var27 := var26
+      }
+      when (valid(2)) {
+	var53 := var52
       }
       when (valid(13)) {
-	var33 := var32
+	var38 := var37
       }
       when (valid(13)) {
-	var59 := var58
+	var64 := var63
       }
       when (valid(24)) {
-	var44 := var43
+	var49 := var48
       }
     }
     when (counter === 3.U) {
       when (valid(3)) {
-	var49 := var48
+	var28 := var27
+      }
+      when (valid(3)) {
+	var54 := var53
       }
       when (valid(14)) {
-	var34 := var33
+	var39 := var38
       }
       when (valid(14)) {
-	var60 := var59
+	var65 := var64
       }
       when (valid(25)) {
-	var45 := var44
+	var50 := var49
       }
     }
     when (counter === 4.U) {
       when (valid(4)) {
-	var50 := var49
+	var29 := var28
+      }
+      when (valid(4)) {
+	var55 := var54
       }
       when (valid(15)) {
-	var35 := var34
+	var40 := var39
       }
       when (valid(15)) {
-	var61 := var60
+	var66 := var65
       }
       when (valid(26)) {
-	var61 := var80
-	var19 := var80
+	var66 := var85
+	var19 := var85
 	when (!valid(15)) {
 	  done := true.B
 	}
@@ -296,109 +323,109 @@ class ellpack extends MultiIOModule {
     }
     when (counter === 5.U) {
       when (valid(5)) {
-	var63 := var74
+	var68 := var79
       }
-      val var82 = var24 + var74
+      val var87 = var29 + var79
       when (valid(5)) {
-	var64 := var82
-      }
-      when (valid(5)) {
-	var25 := var24
+	var69 := var87
       }
       when (valid(5)) {
-	var51 := var50
+	var30 := var29
+      }
+      when (valid(5)) {
+	var56 := var55
       }
       when (valid(16)) {
-	var71 := var77
+	var76 := var82
       }
-      var78 := var61
-      var79 := var77
+      var83 := var66
+      var84 := var82
       when (valid(16)) {
-	var36 := var35
+	var41 := var40
       }
       when (valid(16)) {
-	var62 := var61
+	var67 := var66
       }
     }
     when (counter === 6.U) {
-      var4 := var64
+      var4 := var69
       var3 := 1.U
       when (valid(6)) {
-	var26 := var25
+	var31 := var30
       }
       when (valid(6)) {
-	var52 := var51
+	var57 := var56
       }
       when (valid(6)) {
-	var65 := var64
+	var70 := var69
       }
       when (valid(17)) {
-	var37 := var36
+	var42 := var41
       }
     }
     when (counter === 7.U) {
       when (valid(7)) {
-	var27 := var26
+	var32 := var31
       }
       when (valid(7)) {
-	var53 := var52
+	var58 := var57
       }
       when (valid(7)) {
-	var66 := var65
+	var71 := var70
       }
       when (valid(18)) {
-	var38 := var37
+	var43 := var42
       }
     }
     when (counter === 8.U) {
       when (valid(8)) {
-	var68 := var5
+	var73 := var5
       }
-      var1 := var66
+      var1 := var71
       var0 := 1.U
       var7 := var5
       var6 := 1.U
       when (valid(8)) {
-	var28 := var27
+	var33 := var32
       }
       when (valid(8)) {
-	var54 := var53
+	var59 := var58
       }
       when (valid(8)) {
-	var67 := var66
+	var72 := var71
       }
       when (valid(19)) {
-	var39 := var38
+	var44 := var43
       }
     }
     when (counter === 9.U) {
       when (valid(9)) {
-	var29 := var28
+	var34 := var33
       }
       when (valid(9)) {
-	var55 := var54
+	var60 := var59
       }
       when (valid(20)) {
-	var40 := var39
+	var45 := var44
       }
     }
     when (counter === 10.U) {
       when (valid(10)) {
-	var69 := var2
+	var74 := var2
       }
       when (valid(10)) {
-	var70 := var8
+	var75 := var8
       }
-      var75 := var2
-      var76 := var8
+      var80 := var2
+      var81 := var8
       when (valid(10)) {
-	var30 := var29
+	var35 := var34
       }
       when (valid(10)) {
-	var56 := var55
+	var61 := var60
       }
       when (valid(21)) {
-	var41 := var40
+	var46 := var45
       }
     }
     when (done) {
@@ -417,9 +444,9 @@ class ellpack extends MultiIOModule {
     val step = Mux(go, var16, step_reg)
     new_input := start
     when (start) {
-      when (var81 <= upper_bound) {
+      when (var86 <= upper_bound) {
 	when (counter === 10.U) {
-	  var81 := var81 + step
+	  var86 := var86 + step
 	}
       }.otherwise {
 	start := false.B
@@ -431,23 +458,23 @@ class ellpack extends MultiIOModule {
     val go = IO(Input(Bool()))
     val done = IO(Output(Bool()))
     done := 0.U
-    val var83 = Reg(UInt(1.W))
-    val var84 = Reg(UInt(32.W))
-    val var85 = Reg(UInt(64.W))
+    val var88 = Reg(UInt(1.W))
+    val var89 = Reg(UInt(32.W))
+    val var90 = Reg(UInt(64.W))
     val outline_0_0 = Module(new outline_0)
     outline_0_0.go := 0.U
-    val var86 = outline_0_0.var14
-    var86 := DontCare
-    val var87 = outline_0_0.var15
-    var87 := DontCare
-    val var88 = outline_0_0.var16
-    var88 := DontCare
-    val var89 = outline_0_0.var17
-    var89 := DontCare
-    val var90 = outline_0_0.var18
-    var90 := DontCare
-    val var91 = outline_0_0.var19
-    val var92 = outline_0_0.done
+    val var91 = outline_0_0.var14
+    var91 := DontCare
+    val var92 = outline_0_0.var15
+    var92 := DontCare
+    val var93 = outline_0_0.var16
+    var93 := DontCare
+    val var94 = outline_0_0.var17
+    var94 := DontCare
+    val var95 = outline_0_0.var18
+    var95 := DontCare
+    val var96 = outline_0_0.var19
+    val var97 = outline_0_0.done
     val var0 = IO(Output(UInt(1.W)))
     var0 := outline_0_0.var0
     val var1 = IO(Output(UInt(13.W)))
@@ -487,54 +514,54 @@ class ellpack extends MultiIOModule {
 	}
       }
       is (State.s1) {
-	val var93 = var84 <= 493.U
-	var83 := var93
-	val var94 = !var93
-	var84 := 0.U
+	val var98 = var89 <= 493.U
+	var88 := var98
+	val var99 = !var98
+	var89 := 0.U
 	state := State.s2;
-	when (var94.asBool()) {
+	when (var99.asBool()) {
 	  state := State.s8;
 	}
       }
       is (State.s1_entry) {
-	val var95 = !var83
+	val var100 = !var88
 	state := State.s2;
-	when (var95.asBool()) {
+	when (var100.asBool()) {
 	  state := State.s8;
 	}
       }
       is (State.s2) {
-	var11 := var84
+	var11 := var89
 	var10 := true.B
 	state := State.s2_0;
       }
       is (State.s2_0) {
-	var85 := var13
+	var90 := var13
 	state := State.s3;
       }
       is (State.s3) {
 	state := State.s4;
       }
       is (State.s4) {
-	var86 := 0.U
-	var87 := 9.U
-	var88 := 1.U
-	var89 := var84
-	var90 := var85
+	var91 := 0.U
+	var92 := 9.U
+	var93 := 1.U
+	var94 := var89
+	var95 := var90
 	outline_0_0.go := 1.U
-	when (var92.asBool()) {
-	  var85 := var91
+	when (var97.asBool()) {
+	  var90 := var96
 	}
 	state := State.s4_wait;
-	when (var92.asBool()) {
+	when (var97.asBool()) {
 	  state := State.s5;
 	}
       }
       is (State.s4_wait) {
-	when (var92.asBool()) {
-	  var85 := var91
+	when (var97.asBool()) {
+	  var90 := var96
 	}
-	when (var92.asBool()) {
+	when (var97.asBool()) {
 	  state := State.s5;
 	}
       }
@@ -542,8 +569,8 @@ class ellpack extends MultiIOModule {
 	state := State.s6;
       }
       is (State.s6) {
-	var11 := var84
-	var12 := var85
+	var11 := var89
+	var12 := var90
 	var9 := true.B
 	state := State.s6_0;
       }
@@ -551,10 +578,10 @@ class ellpack extends MultiIOModule {
 	state := State.s7;
       }
       is (State.s7) {
-	val var96 = var84 + 1.U
-	var84 := var96
-	val var97 = var96 <= 493.U
-	var83 := var97
+	val var101 = var89 + 1.U
+	var89 := var101
+	val var102 = var101 <= 493.U
+	var88 := var102
 	state := State.s1_entry;
       }
       is (State.s8) {
@@ -582,11 +609,8 @@ class ellpack extends MultiIOModule {
   main.var5 := var5
   main.var8 := var8
   main.var13 := var13
-
-
   val test_addr = IO(Input(UInt(9.W)))
   val test_data = IO(Output(UInt(64.W)))
-
   mem_global_3.test_addr := test_addr
   test_data := mem_global_3.test_data
   mem_global_3.finished := main.done
