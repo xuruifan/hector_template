@@ -214,11 +214,11 @@ class ellpack extends MultiIOModule {
     when (counter === 10.U) {
       counter := 0.U
     }.otherwise {
-      when (start || counter =/= 0.U) {
+      when (start || shift_register =/= 0.U) {
 	counter := counter + 1.U
       }
     }
-    when (counter === 0.U && start) {
+    when (counter === 0.U) {
       shift_register := Cat(shift_register(1, 0), new_input)
     }
     when (counter === 0.U) {
@@ -234,7 +234,7 @@ class ellpack extends MultiIOModule {
     }
     when (counter === 1.U) {
       var72 := var23
-      var73 := var21
+      var73 := 10.U
       when (valid(1)) {
 	var47 := var46
       }
@@ -401,6 +401,10 @@ class ellpack extends MultiIOModule {
 	var41 := var40
       }
     }
+    when (done) {
+      shift_register := 0.U
+      counter := 0.U
+    }
     val ub_reg = Reg(UInt(32.W))
     when (go) {
       ub_reg := var15
@@ -483,7 +487,7 @@ class ellpack extends MultiIOModule {
 	}
       }
       is (State.s1) {
-	val var93 = var84 <= 494.U
+	val var93 = var84 <= 493.U
 	var83 := var93
 	val var94 = !var93
 	var84 := 0.U
@@ -513,7 +517,7 @@ class ellpack extends MultiIOModule {
       }
       is (State.s4) {
 	var86 := 0.U
-	var87 := 10.U
+	var87 := 9.U
 	var88 := 1.U
 	var89 := var84
 	var90 := var85
@@ -549,7 +553,7 @@ class ellpack extends MultiIOModule {
       is (State.s7) {
 	val var96 = var84 + 1.U
 	var84 := var96
-	val var97 = var96 <= 494.U
+	val var97 = var96 <= 493.U
 	var83 := var97
 	state := State.s1_entry;
       }
@@ -570,21 +574,21 @@ class ellpack extends MultiIOModule {
   mem_global_3.writeIn(0).bits := main.var11
   mem_global_3.readIn(0).bits := main.var11
   mem_global_3.w_dataIn(0).bits := main.var12
+  val go = IO(Input(Bool()))
+  main.go := go
+  val done = IO(Output(Bool()))
+  done := main.done
+  main.var2 := var2
+  main.var5 := var5
+  main.var8 := var8
+  main.var13 := var13
+
 
   val test_addr = IO(Input(UInt(9.W)))
   val test_data = IO(Output(UInt(64.W)))
 
   mem_global_3.test_addr := test_addr
   test_data := mem_global_3.test_data
-
-  val go = IO(Input(Bool()))
-  main.go := go
-  val done = IO(Output(Bool()))
-  mem_global_3.finished := done
-  done := main.done
-  main.var2 := var2
-  main.var5 := var5
-  main.var8 := var8
-  main.var13 := var13
+  mem_global_3.finished := main.done
 }
 
