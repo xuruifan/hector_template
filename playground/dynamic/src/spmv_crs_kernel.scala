@@ -754,10 +754,10 @@ class spmv extends MultiIOModule {
     var147.ready := true.B
     var156.ready := true.B
     var165.ready := true.B
-    mem_0.initMem("mem_0.txt")
-    mem_1.initMem("mem_1.txt")
-    mem_2.initMem("mem_2.txt")
-    mem_3.initMem("mem_3.txt")
+    mem_0.initMem("playground/test/resource/spmv_crs_kernel/mem_0.txt")
+    mem_1.initMem("playground/test/resource/spmv_crs_kernel/mem_1.txt")
+    mem_2.initMem("playground/test/resource/spmv_crs_kernel/mem_2.txt")
+    mem_3.initMem("playground/test/resource/spmv_crs_kernel/mem_3.txt")
     mem_0.finish := DontCare
     mem_0.read_address := DontCare
     mem_1.finish := DontCare
