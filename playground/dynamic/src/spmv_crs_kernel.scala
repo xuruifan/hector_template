@@ -3,7 +3,6 @@ import chisel3.util._
 import chisel3.tester._
 import chisel3.experimental.BundleLiterals
 import utest._
-import testing._
 import chisel3.experimental._
 import hls._
 

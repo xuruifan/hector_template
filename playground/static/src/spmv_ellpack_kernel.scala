@@ -3,7 +3,6 @@ import chisel3.util._
 import chisel3.tester._
 import chisel3.experimental.BundleLiterals
 import utest._
-import testing._
 import chisel3.experimental._
 import hls._
 
@@ -12,17 +11,17 @@ class ellpack extends MultiIOModule {
   val var0 = mem_global_0.r_en
   val var1 = mem_global_0.addr
   val var2 = mem_global_0.r_data
-  mem_global_0.initMem("in_0.txt");
+  mem_global_0.initMem("spmv_ellpack/in_0.txt");
   val mem_global_1 = Module(new ReadMem(4940, 32))
   val var3 = mem_global_1.r_en
   val var4 = mem_global_1.addr
   val var5 = mem_global_1.r_data
-  mem_global_1.initMem("in_1.txt");
+  mem_global_1.initMem("spmv_ellpack/in_1.txt");
   val mem_global_2 = Module(new ReadMem(494, 64))
   val var6 = mem_global_2.r_en
   val var7 = mem_global_2.addr
   val var8 = mem_global_2.r_data
-  mem_global_2.initMem("in_2.txt");
+  mem_global_2.initMem("spmv_ellpack/in_2.txt");
   val mem_global_3 = Module(new ReadWriteMem(494, 64))
   val var9 = mem_global_3.w_en
   val var10 = mem_global_3.r_en

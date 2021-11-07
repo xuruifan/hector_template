@@ -79,4 +79,18 @@ object playground extends ScalaModule with ScalafmtModule { m =>
       ivy"edu.berkeley.cs::chisel-iotesters:1.5.3"
     )
   }
+  object static extends Tests with Utest {
+    override def ivyDeps = m.ivyDeps() ++ Agg(
+      ivy"com.lihaoyi::utest:0.7.10",
+      ivy"edu.berkeley.cs::chiseltest:0.3.3",
+      ivy"edu.berkeley.cs::chisel-iotesters:1.5.3"
+    )
+  }
+  object dynamic extends Tests with Utest {
+    override def ivyDeps = m.ivyDeps() ++ Agg(
+      ivy"com.lihaoyi::utest:0.7.10",
+      ivy"edu.berkeley.cs::chiseltest:0.3.3",
+      ivy"edu.berkeley.cs::chisel-iotesters:1.5.3"
+    )
+  }
 }
