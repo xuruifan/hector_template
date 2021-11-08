@@ -64,6 +64,47 @@ trait dynamicDelay {
 //     }
 //   }
 // }
+object TestStencil2d extends ChiselUtestTester {
+  val tests = Tests {
+    test("stencil2d") {
+      testCircuit(
+        new stencil,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(1400000)
+        fork {
+          dut.go.poke(true.B)
+          dut.clock.step();
+        } fork {
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step();
+          }
+        } join()
+      }
+    }
+  }
+}
+
+object TestGemmNcubed extends ChiselUtestTester {
+  val tests = Tests {
+    test("GemmNcubed") {
+      testCircuit(
+        new gemm,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(300000)
+        fork {
+          dut.go.poke(true.B)
+          dut.clock.step();
+        } fork {
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step();
+          }
+        } join()
+      }
+    }
+  }
+}
 
 object TestSpmvEllpack extends ChiselUtestTester {
   val tests = Tests {

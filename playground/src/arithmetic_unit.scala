@@ -24,7 +24,7 @@ class AddI(width: Int = 32) extends BinaryUnit(width, _ + _) {}
 
 class SubI(width: Int = 32) extends BinaryUnit(width, _ - _) {}
 
-class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 1) {}
+class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 4) {}
 
 
 class DivI(width: Int = 32) extends BinaryUnit(width, _ / _) {}
