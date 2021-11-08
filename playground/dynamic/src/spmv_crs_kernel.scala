@@ -769,9 +769,9 @@ class spmv extends MultiIOModule {
   mem_4.read_address := mem_4_addr
   val mem_4_data = IO(Output(UInt(64.W)))
   mem_4_data := mem_4.out_data
-  mem_0.initMem("playground/test/resource/spmv_crs_kernel/mem_0.txt")
-  mem_1.initMem("playground/test/resource/spmv_crs_kernel/mem_1.txt")
-  mem_2.initMem("playground/test/resource/spmv_crs_kernel/mem_2.txt")
-  mem_3.initMem("playground/test/resource/spmv_crs_kernel/mem_3.txt")
+  mem_0.initMem("data_set/spmv_crs_kernel/mem_0.txt")
+  mem_1.initMem("data_set/spmv_crs_kernel/mem_1.txt")
+  mem_2.initMem("data_set/spmv_crs_kernel/mem_2.txt")
+  mem_3.initMem("data_set/spmv_crs_kernel/mem_3.txt")
 }
 

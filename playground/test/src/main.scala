@@ -28,10 +28,10 @@ class TopModule extends MultiIOModule {
   val var12 = mem_global_4.w_en
   val var13 = mem_global_4.addr
   val var14 = mem_global_4.w_data
-  mem_global_0.initMem("mem_0.txt")
-  mem_global_1.initMem("mem_1.txt")
-  mem_global_2.initMem("mem_2.txt")
-  mem_global_3.initMem("mem_3.txt")
+  mem_global_0.initMem("data_set/mem_0.txt")
+  mem_global_1.initMem("data_set/mem_1.txt")
+  mem_global_2.initMem("data_set/mem_2.txt")
+  mem_global_3.initMem("data_set/mem_3.txt")
 
   class outline_0 extends MultiIOModule {
     val go = IO(Input(Bool()))

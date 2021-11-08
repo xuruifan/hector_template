@@ -19,8 +19,8 @@ class stencil extends MultiIOModule {
   val var6 = mem_global_2.r_en
   val var7 = mem_global_2.addr
   val var8 = mem_global_2.r_data
-  mem_global_0.initMem("stencil_stencil2d/in_0.txt");
-  mem_global_2.initMem("stencil_stencil2d/in_1.txt");
+  mem_global_0.initMem("data_set/stencil_stencil2d/in_0.txt");
+  mem_global_2.initMem("data_set/stencil_stencil2d/in_1.txt");
   class outline_0 extends MultiIOModule {
     val go = IO(Input(Bool()))
     val start = RegInit(false.B)

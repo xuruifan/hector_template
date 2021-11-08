@@ -25,10 +25,10 @@ class ellpack extends MultiIOModule {
   val var11 = mem_global_3.addr
   val var12 = mem_global_3.w_data
   val var13 = mem_global_3.r_data
-  mem_global_0.initMem("spmv_ellpack/in_0.txt");
-  mem_global_1.initMem("spmv_ellpack/in_1.txt");
-  mem_global_2.initMem("spmv_ellpack/in_2.txt");
-  mem_global_3.initMem("spmv_ellpack/in_3.txt");
+  mem_global_0.initMem("data_set/spmv_ellpack/in_0.txt");
+  mem_global_1.initMem("data_set/spmv_ellpack/in_1.txt");
+  mem_global_2.initMem("data_set/spmv_ellpack/in_2.txt");
+  mem_global_3.initMem("data_set/spmv_ellpack/in_3.txt");
   class outline_0 extends MultiIOModule {
     val go = IO(Input(Bool()))
     val start = RegInit(false.B)
