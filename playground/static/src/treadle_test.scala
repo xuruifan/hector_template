@@ -7,14 +7,57 @@ import org.scalatest.{Matchers, FlatSpec}
 import firrtl.stage.FirrtlSourceAnnotation
 import scala.io.Source
 import java.io._
+import java.lang.Double.{longBitsToDouble}
+import java.nio.ByteBuffer
+
+object TestGemmNcubedTreadle extends FlatSpec with Matchers with App {
+
+  val s = Driver.emit(() => new gemm)
+  val input0 = Source.fromFile("data_set/gemm_ncubed/in_0.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input1 = Source.fromFile("data_set/gemm_ncubed/in_1.txt").getLines.toSeq.map(str => BigInt(str, 16))
+
+  println(input0(0), input1(0))
+  println(input0.size, input1.size)
+  val tester = TreadleTester(
+    Seq(
+      FirrtlSourceAnnotation(s),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("gemm").module("gemm").instOf("mem_global_0", "ReadMem").ref("mem"),
+        input0
+      ),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("gemm").module("gemm").instOf("mem_global_1", "ReadMem_1").ref("mem"),
+        input1
+      )
+    )
+  )
+
+  tester.poke("go", 1)
+  var clock = 0
+  val threshold = 2000000
+  while (tester.peek("done") != 1 && clock < threshold) {
+    tester.step()
+    clock += 1
+  }
+  if (clock >= threshold)
+    println("Time Out!")
+  println(s"clock $clock")
+  val printer = new PrintWriter(new File("data_set/gemm_ncubed/out.txt"))
+  for (i <- 0 to 4095) {
+    val x = tester.peekMemory("mem_global_2_.mem", i).toLong
+    val res = longBitsToDouble(x)
+    printer.write(s"$res\n")
+  }
+  printer.close()
+}
 
 object TestStencil3dTreadle extends FlatSpec with Matchers with App {
   def getMemoryReference(i: Int): ReferenceTarget = {
     return CircuitTarget("stencil3d").module("stencil3d").instOf(s"mem_global_$i", "ReadMem").ref("mem")
   }
   val s = Driver.emit(() => new stencil3d)
-  val input0 = Source.fromFile("data_set/stencil_stencil3d/in_0.txt").getLines.toSeq.map(str => BigInt(Integer.parseUnsignedInt(str, 16).toInt))
-  val input1 = Source.fromFile("data_set/stencil_stencil3d/in_1.txt").getLines.toSeq.map(str => BigInt(Integer.parseUnsignedInt(str, 16).toInt))
+  val input0 = Source.fromFile("data_set/stencil_stencil3d/in_0.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input1 = Source.fromFile("data_set/stencil_stencil3d/in_1.txt").getLines.toSeq.map(str => BigInt(str, 16))
 
   println(input0(0), input1(0))
   println(input0.size, input1.size)
