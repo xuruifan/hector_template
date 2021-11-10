@@ -633,11 +633,5 @@ class gemm extends MultiIOModule {
   mem_global_2.finished := done
   mem_global_0.initMem("data_set/gemm_ncubed/in_0.txt");
   mem_global_1.initMem("data_set/gemm_ncubed/in_1.txt");
-  mem_global_2.initMem("data_set/gemm_ncubed/in_2.txt");
-  val test_addr = IO(Input(UInt(12.W)))
-  val test_data = IO(Output(UInt(64.W)))
-  mem_global_2.test_addr := test_addr
-  test_data := mem_global_2.test_data
-  mem_global_2.finished := main.done
 }
 
