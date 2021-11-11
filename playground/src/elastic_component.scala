@@ -289,22 +289,20 @@ class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   val control = IO(Flipped(DecoupledIO(UInt(0.W))))
 
-  private val join = Module(new Join(3))
+  private val join = Module(new Join(2))
   join.pValid(0) := address_in.valid
-  join.pValid(1) := data_in.valid
-  join.pValid(2) := control.valid
+  join.pValid(1) := control.valid
 
-  join.nReady := address_out.ready & data_out.ready
+  join.nReady := address_out.ready
 
   address_in.ready:= join.ready(0)
-  data_in.ready := join.ready(1)
-  control.ready := join.ready(2)
+  control.ready := join.ready(1)
 
   address_out.valid := join.valid
-  data_out.valid := join.valid
 
   address_out.bits := address_in.bits
-  data_out.bits := address_in.bits
+
+  data_in <> data_out
 }
 
 class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
