@@ -223,7 +223,7 @@ class Control_Merge(size: Int = 32) extends MultiIOModule {
   dataIn(1).ready := phi_c.dataIn(1).ready
 
   //Not sure
-  private val tehb = Module(new TEHB(size))
+  private val tehb = Module(new TEHB(1))
   phi_c.dataOut.ready := tehb.dataIn.ready
   tehb.dataIn.bits := !(dataIn(0).valid)
   tehb.dataIn.valid := phi_c.dataOut.valid
@@ -272,7 +272,7 @@ class MuxDynamic(size: Int = 32)(input: Int = 2) extends MultiIOModule {
     }
   }
 
-  when(condition.valid || (tmp_valid && tehb.dataIn.ready)) {
+  when(!condition.valid || (tmp_valid && tehb.dataIn.ready)) {
     condition.ready := true.B
   }.otherwise {
     condition.ready := false.B
