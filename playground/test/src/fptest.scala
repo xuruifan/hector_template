@@ -134,7 +134,28 @@ class IntToFloatTester(c: IntToFloatBase, latency: Int) extends PeekPokeTester(c
       val golden = queue.dequeue()
       expect(c.result, intToUnsignedBigInt(floatToIntBits(golden)))
       val result = intBitsToFloat(peek(c.result).toInt)
-      println("%f %f".format(result, golden))
+    }
+    step(1)
+  }
+}
+
+class FloatToIntTester(c: FloatToIntBase, latency: Int) extends PeekPokeTester(c) {
+  val r = new Random(2);
+  var queue = scala.collection.mutable.Queue[Int]()
+  val eps = 1e-7
+  poke(c.ce, true.B)
+  for (i <- 0 to latency + 5) {
+    val intVal = r.nextInt()
+    val floatVal = intVal.toFloat
+    println("%d %f".format(intVal, floatVal))
+    queue.enqueue(intVal)
+    poke(c.operand, intToUnsignedBigInt(floatToIntBits(floatVal)))
+    //val output = peek(c.result).floatValue()
+    if (i >= latency) {
+      val golden = queue.dequeue()
+      expect(c.result, intToUnsignedBigInt(golden))
+      val result = peek(c.result).toInt
+      println("%d %d".format(result, golden))
     }
     step(1)
   }
@@ -160,5 +181,9 @@ object Tester extends FlatSpec with Matchers with App {
 
   iotesters.Driver.execute(() => new IntToFloatBase(7, 32, 8, 24, true), new TesterOptionsManager) { c =>
     new IntToFloatTester(c, 7)
+  }
+
+  iotesters.Driver.execute(() => new FloatToIntBase(7, 32, 8, 24, true) , new TesterOptionsManager) { c =>
+    new FloatToIntTester(c, 7)
   }
 }

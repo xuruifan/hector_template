@@ -173,7 +173,6 @@ class IntToFloatBase(latency: Int, intWidth: Int, expWidth: Int, sigWidth: Int, 
   val result  = IO(Output(UInt(fWidth.W)))
   val ce      = IO(Input(Bool()))
 
-  val newClock = (clock.asUInt()(0) & ce).asClock()
   val compUnit = Module(new INToRecFN(intWidth, expWidth, sigWidth))
 
   //  compUnit.io.signIn         := signed.B
@@ -186,6 +185,25 @@ class IntToFloatBase(latency: Int, intWidth: Int, expWidth: Int, sigWidth: Int, 
   val output = fNFromRecFN(expWidth, sigWidth, compUnit.io.out)
 
   result := ShiftRegister(output, latency, ce)
+}
+
+class FloatToIntBase(latency: Int, intWidth: Int, expWidth: Int, sigWidth: Int, signed: Boolean) extends MultiIOModule {
+  val fWidth = expWidth + sigWidth
+
+  val operand = IO(Input(UInt(fWidth.W)))
+  val result  = IO(Output(UInt(intWidth.W)))
+  val ce      = IO(Input(Bool()))
+
+  val compUnit = Module(new RecFNToIN(expWidth, sigWidth, intWidth))
+
+  //  compUnit.io.signIn         := signed.B
+  compUnit.io.signedOut := signed.B
+
+  compUnit.io.in             := recFNFromFN(expWidth, sigWidth, operand)
+  compUnit.io.roundingMode   := consts.round_near_even
+
+  //val output = fNFromRecFN(expWidth, sigWidth, compUnit.io.out)
+  result := ShiftRegister(compUnit.io.out, latency, ce)
 }
 
 //===----------------------------------------------------------------------===//
