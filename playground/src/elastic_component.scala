@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.experimental._
 
-class Join extends MultiIOModule {
+/*class Join extends MultiIOModule {
   val pValid = IO(Vec(2, Input(Bool())))
   val ready = IO(Vec(2, Output(Bool())))
 
@@ -15,7 +15,22 @@ class Join extends MultiIOModule {
 
   ready(0) := nReady & pValid(1)
   ready(1) := nReady & pValid(0)
+}*/
+
+class Join(size: Int = 2) extends MultiIOModule {
+  val pValid = IO(Vec(size, Input(Bool())))
+  val ready = IO(Vec(size, Output(Bool())))
+
+  val valid = IO(Output(Bool()))
+  val nReady = IO(Input(Bool()))
+
+  valid := pValid.foldLeft(true.B)(_ && _)
+
+  for (i <- 0 until size) {
+    ready(i) := pValid.zipWithIndex.filter(_._2 != i).foldLeft(nReady)(_ && _._1)
+  }
 }
+
 
 class TEHB(size: Int = 32) extends MultiIOModule {
   val dataIn = IO(Flipped(DecoupledIO(UInt(size.W))))
@@ -208,10 +223,10 @@ class Control_Merge(size: Int = 32) extends MultiIOModule {
   dataIn(1).ready := phi_c.dataIn(1).ready
 
   //Not sure
-  private val tehb = Module(new TEHB(size))
-  phi_c.dataOut.ready <> tehb.dataIn.ready
+  private val tehb = Module(new TEHB(1))
+  phi_c.dataOut.ready := tehb.dataIn.ready
   tehb.dataIn.bits := !(dataIn(0).valid)
-  tehb.dataIn.valid <> phi_c.dataOut.valid
+  tehb.dataIn.valid := phi_c.dataOut.valid
   dataOut.bits := tehb.dataOut.bits
 
   private val fork_c = Module(new Fork(1)())
@@ -257,20 +272,11 @@ class MuxDynamic(size: Int = 32)(input: Int = 2) extends MultiIOModule {
     }
   }
 
-  when(condition.valid || (tmp_valid && tehb.dataIn.ready)) {
+  when(!condition.valid || (tmp_valid && tehb.dataIn.ready)) {
     condition.ready := true.B
   }.otherwise {
     condition.ready := false.B
   }
-}
-
-class Sink(size: Int = 32) extends MultiIOModule {
-  val dataIn = IO(Flipped(DecoupledIO(UInt(size.W))))
-  dataIn.ready := false.B
-}
-
-class Const(size: Int = 32) extends MultiIOModule {
-
 }
 
 class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
@@ -281,7 +287,21 @@ class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
   val address_out = IO(DecoupledIO(UInt(addrWidth.W)))
   val data_in = IO(Flipped(DecoupledIO(UInt(width.W))))
 
-  address_in <> address_out
+  val control = IO(Flipped(DecoupledIO(UInt(0.W))))
+
+  private val join = Module(new Join(2))
+  join.pValid(0) := address_in.valid
+  join.pValid(1) := control.valid
+
+  join.nReady := address_out.ready
+
+  address_in.ready:= join.ready(0)
+  control.ready := join.ready(1)
+
+  address_out.valid := join.valid
+
+  address_out.bits := address_in.bits
+
   data_in <> data_out
 }
 
@@ -293,8 +313,24 @@ class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
   val address_out = IO(DecoupledIO(UInt(addrWidth.W)))
   val data_out = IO(DecoupledIO(UInt(width.W)))
 
-  address_in <> address_out
-  data_in <> data_out
+  val control = IO(Flipped(DecoupledIO(UInt(0.W))))
+
+  private val join = Module(new Join(3))
+  join.pValid(0) := address_in.valid
+  join.pValid(1) := data_in.valid
+  join.pValid(2) := control.valid
+
+  join.nReady := address_out.ready & data_out.ready
+
+  address_in.ready:= join.ready(0)
+  data_in.ready := join.ready(1)
+  control.ready := join.ready(2)
+
+  address_out.valid := join.valid
+  data_out.valid := join.valid
+
+  address_out.bits := address_in.bits
+  data_out.bits := address_in.bits
 }
 
 class insideMemory(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModule with InitMem {
