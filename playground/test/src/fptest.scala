@@ -119,6 +119,27 @@ class CmpFTester(c: CmpFBase, latency: Int) extends PeekPokeTester(c) {
   }
 }
 
+class IntToFloatTester(c: IntToFloatBase, latency: Int) extends PeekPokeTester(c) {
+  val r = new Random(2);
+  var queue = scala.collection.mutable.Queue[Float]()
+  val eps = 1e-7
+  poke(c.ce, true.B)
+  for (i <- 0 to latency + 5) {
+    val intVal = r.nextInt()
+    val floatVal = intVal.toFloat
+    queue.enqueue(floatVal)
+    poke(c.operand, intVal)
+    //val output = peek(c.result).floatValue()
+    if (i >= latency) {
+      val golden = queue.dequeue()
+      expect(c.result, intToUnsignedBigInt(floatToIntBits(golden)))
+      val result = intBitsToFloat(peek(c.result).toInt)
+      println("%f %f".format(result, golden))
+    }
+    step(1)
+  }
+}
+
 object Tester extends FlatSpec with Matchers with App {
 
   iotesters.Driver.execute(() => new MulFBase(6, 8, 24), new TesterOptionsManager) { c =>
@@ -135,5 +156,9 @@ object Tester extends FlatSpec with Matchers with App {
 
   iotesters.Driver.execute(() => new CmpFBase(1, 8, 24), new TesterOptionsManager) { c =>
     new CmpFTester(c, 1)
+  }
+
+  iotesters.Driver.execute(() => new IntToFloatBase(7, 32, 8, 24, true), new TesterOptionsManager) { c =>
+    new IntToFloatTester(c, 7)
   }
 }

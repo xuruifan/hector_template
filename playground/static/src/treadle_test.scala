@@ -87,7 +87,7 @@ object TestStencil3dTreadle extends FlatSpec with Matchers with App {
   println(s"clock $clock")
   val printer = new PrintWriter(new File("data_set/stencil_stencil3d/out.txt"))
   for (i <- 0 to 16383) {
-    val x = tester.peekMemory("mem_global_2_.mem", i)
+    val x = tester.peekMemory("mem_global_2_.mem", i).toInt
     printer.write(s"$x\n")
   }
   printer.close()

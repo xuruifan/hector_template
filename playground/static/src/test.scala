@@ -113,6 +113,27 @@ object TestStencil3d extends ChiselUtestTester {
   }
 }
 
+object TestSpmvCSR extends ChiselUtestTester {
+  val tests = Tests {
+    test("SpmvCSR") {
+      testCircuit(
+        new spmv,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(1400000)
+        fork {
+          dut.go.poke(true.B)
+          dut.clock.step();
+        }.fork {
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step();
+          }
+        }.join()
+      }
+    }
+  }
+}
+
 object TestStencil2d extends ChiselUtestTester {
   val tests = Tests {
     test("stencil2d") {
