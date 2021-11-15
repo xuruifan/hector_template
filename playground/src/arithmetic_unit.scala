@@ -219,6 +219,56 @@ class CmpFDynamic(latency: Int, expWidth: Int, sigWidth: Int)(opcode: UInt) exte
   result.bits := subf.result
 }
 
+class IntToFloatDynamic(latency: Int, intWidth: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val operand = IO(Flipped(DecoupledIO(UInt(width))))
+
+  val result = IO(DecoupledIO(UInt(width)))
+
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  operand.ready := oehb.dataIn.ready
+
+  buff.valid_in := operand.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val subf = Module(new IntToFloatBase(latency, intWidth, expWidth, sigWidth, true))
+  subf.ce := oehb.dataIn.ready
+  subf.operand := operand.bits
+  result.bits := subf.result
+}
+
+class FloatToIntDynamic(latency: Int, intWidth: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val operand = IO(Flipped(DecoupledIO(UInt(width))))
+
+  val result = IO(DecoupledIO(UInt(width)))
+
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  operand.ready := oehb.dataIn.ready
+
+  buff.valid_in := operand.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val subf = Module(new FloatToIntBase(latency, intWidth, expWidth, sigWidth, true))
+  subf.ce := oehb.dataIn.ready
+  subf.operand := operand.bits
+  result.bits := subf.result
+}
+
 class Constant(size: Int = 32) extends MultiIOModule {
   val control = IO(Flipped(DecoupledIO(UInt(0.W))))
   val dataIn = IO(Flipped(DecoupledIO(UInt(size.W))))
