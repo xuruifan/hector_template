@@ -4,7 +4,6 @@ import chisel3._
 import chisel3.util._
 import chisel3.experimental._
 
-
 class BinaryUnit(width: Int = 32, func: (UInt, UInt) => UInt, shift: Int = 0) extends MultiIOModule {
   val operand0 = IO(Input(UInt(width.W)))
   val operand1 = IO(Input(UInt(width.W)))
@@ -28,6 +27,14 @@ class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 4) {}
 
 
 class DivI(width: Int = 32) extends BinaryUnit(width, _ / _) {}
+
+class TruncIDynamic(inwidth: Int = 32, outwidth: Int = 32) extends MultiIOModule {
+  val operand = IO(Flipped(DecoupledIO(UInt(inwidth.W))))
+  val result = IO(DecoupledIO(UInt(outwidth.W)))
+  result.bits := operand.bits
+  result.valid := operand.valid
+  operand.ready := result.ready
+}
 
 class BinaryUnitDynamic(width: Int = 32, func: (UInt, UInt) => UInt) extends MultiIOModule {
   val operand0 = IO(Flipped(DecoupledIO(UInt(width.W))))
