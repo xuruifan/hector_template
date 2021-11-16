@@ -23,7 +23,7 @@ class AddI(width: Int = 32) extends BinaryUnit(width, _ + _) {}
 class SubI(width: Int = 32) extends BinaryUnit(width, _ - _) {}
 
 // class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 4) {}
-class MulI(width: Int = 32, latency: Int) extends MultiIOModule {
+class MulI(width: Int = 32, latency: Int = 4) extends MultiIOModule {
   val operand0 = IO(Input(UInt(width.W)))
   val operand1 = IO(Input(UInt(width.W)))
   val ce = IO(Input(Bool()))
@@ -62,8 +62,37 @@ class AddIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ + _) {}
 
 class SubIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ - _) {}
 
-class MulIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ * _) {}
+//class MulIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ * _) {}
+class MulIDynamic(width: Int = 32, latency: Int = 4) extends MultiIOModule {
+  val operand0 = IO(Flipped(DecoupledIO(UInt(width.W))))
+  val operand1 = IO(Flipped(DecoupledIO(UInt(width.W))))
 
+  val result = IO(DecoupledIO(UInt(width.W)))
+
+  private val join = Module(new Join())
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  join.pValid(0) := operand0.valid
+  join.pValid(1) := operand1.valid
+  operand0.ready := join.ready(0)
+  operand1.ready := join.ready(1)
+  join.nReady := oehb.dataIn.ready
+
+  buff.valid_in := join.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val muli = Module(new MulI(width, latency))
+  muli.ce := oehb.dataIn.ready
+  muli.operand0 := operand0.bits
+  muli.operand1 := operand1.bits
+  result.bits := muli.result
+}
 class DivIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ / _) {}
 
 class CmpI(width: Int = 32, func: (UInt, UInt) => Bool) extends MultiIOModule {
@@ -280,6 +309,38 @@ class FloatToIntDynamic(latency: Int, intWidth: Int, expWidth: Int, sigWidth: In
   subf.ce := oehb.dataIn.ready
   subf.operand := operand.bits
   result.bits := subf.result
+}
+
+class DivFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val operand0 = IO(Flipped(DecoupledIO(UInt(width))))
+  val operand1 = IO(Flipped(DecoupledIO(UInt(width))))
+
+  val result = IO(DecoupledIO(UInt(width)))
+
+  private val join = Module(new Join())
+  private val buff = Module(new DelayBuffer(latency - 1, 1))
+  private val oehb = Module(new OEHB(0))
+
+  join.pValid(0) := operand0.valid
+  join.pValid(1) := operand1.valid
+  operand0.ready := join.ready(0)
+  operand1.ready := join.ready(1)
+  join.nReady := oehb.dataIn.ready
+
+  buff.valid_in := join.valid
+  buff.ready_in := oehb.dataIn.ready
+
+  oehb.dataIn.bits := DontCare
+  oehb.dataOut.ready := result.ready
+  oehb.dataIn.valid := buff.valid_out
+  result.valid := oehb.dataOut.valid
+
+  val divf = Module(new DivFBase(latency, expWidth, sigWidth))
+  divf.ce := oehb.dataIn.ready
+  divf.operand0 := operand0.bits
+  divf.operand1 := operand1.bits
+  result.bits := divf.result
 }
 
 class Constant(size: Int = 32) extends MultiIOModule {
