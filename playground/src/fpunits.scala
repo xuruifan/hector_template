@@ -199,11 +199,33 @@ class FloatToIntBase(latency: Int, intWidth: Int, expWidth: Int, sigWidth: Int, 
   //  compUnit.io.signIn         := signed.B
   compUnit.io.signedOut := signed.B
 
-  compUnit.io.in             := recFNFromFN(expWidth, sigWidth, operand)
-  compUnit.io.roundingMode   := consts.round_near_even
+  compUnit.io.in           := recFNFromFN(expWidth, sigWidth, operand)
+  compUnit.io.roundingMode := consts.round_near_even
 
   //val output = fNFromRecFN(expWidth, sigWidth, compUnit.io.out)
   result := ShiftRegister(compUnit.io.out, latency, ce)
+}
+
+/// result = operand0 / operand1
+class DivFBase(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val fWidth = expWidth + sigWidth
+
+  val operand0 = IO(Input(UInt(fWidth.W)))
+  val operand1 = IO(Input(UInt(fWidth.W)))
+  val ce = IO(Input(Bool()))
+  val result = IO(Output(UInt(fWidth.W)))
+
+  val x = operand0 * operand1
+  val newClock = (clock.asBool() & ce).asClock()
+  result := ShiftRegister(x, latency, ce)
+}
+
+/// usage: result := NegF(8, 24, operand)
+object NegF {
+  def apply(expWidth: Int, sigWidth: Int, in: Bits) {
+    val fWidth = expWidth + sigWidth
+    Cat(in(fWidth-1), in(fWidth-2, 0))
+  }
 }
 
 //===----------------------------------------------------------------------===//

@@ -2,7 +2,6 @@ package hls
 
 import chisel3._
 import chisel3.util._
-import chisel3.experimental._
 
 class BinaryUnit(width: Int = 32, func: (UInt, UInt) => UInt, shift: Int = 0) extends MultiIOModule {
   val operand0 = IO(Input(UInt(width.W)))
@@ -23,8 +22,15 @@ class AddI(width: Int = 32) extends BinaryUnit(width, _ + _) {}
 
 class SubI(width: Int = 32) extends BinaryUnit(width, _ - _) {}
 
-class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 4) {}
+// class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 4) {}
+class MulI(width: Int = 32, latency: Int) extends MultiIOModule {
+  val operand0 = IO(Input(UInt(width.W)))
+  val operand1 = IO(Input(UInt(width.W)))
+  val ce = IO(Input(Bool()))
+  val result = IO(Output(UInt(width.W)))
 
+  result := ShiftRegister(operand0 * operand1, latency, ce)
+}
 
 class DivI(width: Int = 32) extends BinaryUnit(width, _ / _) {}
 
