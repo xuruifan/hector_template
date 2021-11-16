@@ -415,7 +415,7 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
       //      arb.io.in(i).valid := load_valid(i)
       arb.io.in(i).valid := load_address(i).valid & buffer(i).dataIn.ready
       arb.io.in(i).bits := load_address(i).bits
-      load_address(i).ready := arb.io.in(i).ready
+      load_address(i).ready := arb.io.in(i).ready & buffer(i).dataIn.ready
       //      load_data(i).bits := DontCare
       //      load_data(i).valid := false.B
       //      buffer(i).dataOut <> load_data(i)
