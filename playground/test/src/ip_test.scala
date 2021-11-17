@@ -24,6 +24,14 @@ class TestMulFIP extends MultiIOModule {
   result1 := mulf_ip2.result
 }
 
+/**
+  * 1. Define a new Object extends App and call TclGen inside the object
+  *    TclGen(moduleName, destinationPath, TopModuleName)
+  * 2. mill playground.test.runMain "name of new Object"
+  *    It will Generate two files: destinationPath/kernel.v, 
+  *    destinationPath/run.tcl
+  * 3. vivado -mode tcl -source run.tcl to get two report file
+  */
 object ipGenerator extends App {
   TclGen(new TestMulFIP, "/home/kix6/Documents/research/hls_template/test_run_dir/test_synth", "TestMulFIP")
 }
