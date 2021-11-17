@@ -5,6 +5,7 @@ import chisel3.util._
 // import chisel3.experimental._
 
 import scala.util.Random
+import scala.collection.mutable.TreeMap
 
 import hardfloat._
 
@@ -212,10 +213,10 @@ class DivFBase(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule
 
   val operand0 = IO(Input(UInt(fWidth.W)))
   val operand1 = IO(Input(UInt(fWidth.W)))
-  val ce = IO(Input(Bool()))
-  val result = IO(Output(UInt(fWidth.W)))
+  val ce       = IO(Input(Bool()))
+  val result   = IO(Output(UInt(fWidth.W)))
 
-  val x = operand0 * operand1
+  val x        = operand0 * operand1
   val newClock = (clock.asBool() & ce).asClock()
   result := ShiftRegister(x, latency, ce)
 }
@@ -224,7 +225,7 @@ class DivFBase(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOModule
 object NegF {
   def apply(expWidth: Int, sigWidth: Int, in: Bits) {
     val fWidth = expWidth + sigWidth
-    Cat(in(fWidth-1), in(fWidth-2, 0))
+    Cat(in(fWidth - 1), in(fWidth - 2, 0))
   }
 }
 
@@ -232,26 +233,41 @@ object NegF {
 /// Wrapper for Vivado IP
 //===----------------------------------------------------------------------===//
 
-class VivadoBinaryIP(width: Int) extends BlackBox {
+class VivadoUnaryIP(expWidth: Int, sigWidth: Int) extends BlackBox {
+  val width = expWidth + sigWidth
   val io = IO(new Bundle {
     val aclk                 = Input(Clock())
     val aclken               = Input(Bool())
     val s_axis_a_tdata       = Input(UInt(width.W))
-    val s_axis_a_tvalid      = Input(UInt(width.W))
-    val s_axis_b_tdata       = Input(UInt(width.W))
-    val s_axis_b_tvalid      = Input(UInt(width.W))
+    val s_axis_a_tvalid      = Input(Bool())
     val m_axis_result_tvalid = Output(Bool())
     val m_axis_result_tdata  = Output(UInt(width.W))
   })
 }
 
-class VivadoFCMPIP(width: Int) extends BlackBox {
+class VivadoBinaryIP(expWidth: Int, sigWidth: Int) extends BlackBox {
+  val width = expWidth + sigWidth
   val io = IO(new Bundle {
+    val aclk                 = Input(Clock())
+    val aclken               = Input(Bool())
+    val s_axis_a_tdata       = Input(UInt(width.W))
+    val s_axis_a_tvalid      = Input(Bool())
+    val s_axis_b_tdata       = Input(UInt(width.W))
+    val s_axis_b_tvalid      = Input(Bool())
+    val m_axis_result_tvalid = Output(Bool())
+    val m_axis_result_tdata  = Output(UInt(width.W))
+  })
+}
+
+class VivadoFCMPIP(expWidth: Int, sigWidth: Int) extends BlackBox {
+  val width = expWidth + sigWidth
+  val io = IO(new Bundle {
+    val aclk                    = Input(Clock())
     val aclken                  = Input(Bool())
     val s_axis_a_tdata          = Input(UInt(width.W))
-    val s_axis_a_tvalid         = Input(UInt(width.W))
+    val s_axis_a_tvalid         = Input(Bool())
     val s_axis_b_tdata          = Input(UInt(width.W))
-    val s_axis_b_tvalid         = Input(UInt(width.W))
+    val s_axis_b_tvalid         = Input(Bool())
     val s_axis_operation_tdata  = Input(UInt(8.W))
     val s_axis_operation_tvalid = Input(Bool())
     val m_axis_result_tvalid    = Output(Bool())
@@ -259,10 +275,35 @@ class VivadoFCMPIP(width: Int) extends BlackBox {
   })
 }
 
-class ComponentWrapper[T <: VivadoBinaryIP](genT: => T, width: Int) extends MultiIOModule {
+class UnaryWrapper[T <: VivadoUnaryIP](genT: => T, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width   = expWidth + sigWidth
+  val operand = IO(Input(UInt(width.W)))
+  val ce      = IO(Input(Bool()))
+  val result  = IO(Output(UInt(width.W)))
+  val valid   = IO(Output(Bool()))
+
+  val IPCore = Module(genT)
+
+  val operandReg = Reg(UInt(width.W))
+  val ceReg      = RegNext(ce)
+
+  when(ceReg) {
+    operandReg := operand
+  }
+
+  IPCore.io.aclk            := clock
+  IPCore.io.aclken          := ceReg
+  IPCore.io.s_axis_a_tdata  := operandReg
+  IPCore.io.s_axis_a_tvalid := true.B
+  result                    := IPCore.io.m_axis_result_tdata
+  valid                     := IPCore.io.m_axis_result_tvalid
+}
+
+class ComponentWrapper[T <: VivadoBinaryIP](genT: => T, expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width    = expWidth + sigWidth
   val operand0 = IO(Input(UInt(width.W)))
   val operand1 = IO(Input(UInt(width.W)))
-  val enable   = IO(Input(Bool()))
+  val ce       = IO(Input(Bool()))
   val result   = IO(Output(UInt(width.W)))
   val valid    = IO(Output(Bool()))
 
@@ -270,15 +311,15 @@ class ComponentWrapper[T <: VivadoBinaryIP](genT: => T, width: Int) extends Mult
 
   val operand0Reg = Reg(UInt(width.W))
   val operand1Reg = Reg(UInt(width.W))
-  val enableReg   = RegNext(enable)
+  val ceReg       = RegNext(ce)
 
-  when(enable) {
+  when(ceReg) {
     operand0Reg := operand0
     operand1Reg := operand1
   }
 
   IPCore.io.aclk            := clock
-  IPCore.io.aclken          := enableReg
+  IPCore.io.aclken          := ceReg
   IPCore.io.s_axis_a_tdata  := operand0Reg
   IPCore.io.s_axis_a_tvalid := true.B
   IPCore.io.s_axis_b_tdata  := operand1Reg
@@ -287,12 +328,12 @@ class ComponentWrapper[T <: VivadoBinaryIP](genT: => T, width: Int) extends Mult
   valid                     := IPCore.io.m_axis_result_tvalid
 }
 
-class CMPWrapper[T <: VivadoFCMPIP](genT: => T, width: Int) extends MultiIOModule() {
-
+class CMPWrapper[T <: VivadoFCMPIP](genT: => T, expWidth: Int, sigWidth: Int) extends MultiIOModule() {
+  val width    = expWidth + sigWidth
   val operand0 = IO(Input(UInt(width.W)))
   val operand1 = IO(Input(UInt(width.W)))
   val opcode   = IO(Input(UInt(8.W)))
-  val enable   = IO(Input(Bool()))
+  val ce       = IO(Input(Bool()))
   val result   = IO(Output(Bool()))
   val valid    = IO(Output(Bool()))
 
@@ -301,15 +342,16 @@ class CMPWrapper[T <: VivadoFCMPIP](genT: => T, width: Int) extends MultiIOModul
   val operand0Reg = Reg(UInt(width.W))
   val operand1Reg = Reg(UInt(width.W))
   val opcodeReg   = Reg(UInt(8.W))
-  val enableReg   = RegNext(enable)
+  val ceReg       = RegNext(ce)
 
-  when(enable) {
+  when(ceReg) {
     operand0Reg := operand0
     operand1Reg := operand1
     opcodeReg   := opcode
   }
 
-  IPCore.io.aclken                  := enableReg
+  IPCore.io.aclk                    := clock
+  IPCore.io.aclken                  := ceReg
   IPCore.io.s_axis_a_tdata          := operand0Reg
   IPCore.io.s_axis_a_tvalid         := true.B
   IPCore.io.s_axis_b_tdata          := operand1Reg
@@ -321,21 +363,122 @@ class CMPWrapper[T <: VivadoFCMPIP](genT: => T, width: Int) extends MultiIOModul
   valid  := IPCore.io.m_axis_result_tvalid
 }
 
-class FP64MulIP extends VivadoBinaryIP(64)
-class FP64AddIP extends VivadoBinaryIP(64)
-class FP64SubIP extends VivadoBinaryIP(64)
-class FP64CMPIP extends VivadoFCMPIP(64)
-class FP32MulIP extends VivadoBinaryIP(32)
-class FP32AddIP extends VivadoBinaryIP(32)
-class FP32SubIP extends VivadoBinaryIP(32)
-class FP32CMPIP extends VivadoFCMPIP(32)
+class VivadoMulFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBinaryIP(expWidth, sigWidth) {
+  override def desiredName: String = s"mulf_${latency}_${expWidth}_${sigWidth}_ip"
+  val config = TreeMap(
+    "ip_name" -> "floating_point",
+    "operation_type" -> "Multiply",
+    "has_aclken" -> "true",
+    "c_latency" -> s"${latency}",
+    "c_rate" -> "1",
+    "c_a_exponent_width" -> s"$expWidth",
+    "c_a_fraction_width" -> s"$sigWidth",
+    "c_result_exponent_width" -> s"$expWidth",
+    "c_result_fraction_width" -> s"$sigWidth"
+  )
+  IPLogger.addIP(desiredName, config)
+}
 
-class FMul64IP extends ComponentWrapper(new FP64MulIP, 64)
-class FAdd64IP extends ComponentWrapper(new FP64AddIP, 64)
-class FSub64IP extends ComponentWrapper(new FP64SubIP, 64)
-class FCMP64IP extends CMPWrapper(new FP64CMPIP, 64)
+class MulFIP(latency: Int, expWidth: Int, sigWidth: Int)
+    extends ComponentWrapper(new VivadoMulFIP(latency, expWidth, sigWidth), expWidth, sigWidth)
 
-class FMul32IP extends ComponentWrapper(new FP32MulIP, 32)
-class FAdd32IP extends ComponentWrapper(new FP32AddIP, 32)
-class FSub32IP extends ComponentWrapper(new FP32SubIP, 32)
-class FCMP32IP extends CMPWrapper(new FP32CMPIP, 32)
+class VivadoAddSubFIP(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean)
+    extends VivadoBinaryIP(expWidth, sigWidth) {
+  override def desiredName: String = s"addsubf_${mode}_${latency}_${expWidth}_${sigWidth}_ip"
+  val add_sub = if (mode) "Add" else "Sub"
+  val config = TreeMap(
+    "ip_name" -> "floating_point",
+    "operation_type" -> "Add_Subtract",
+    "add_sub_value" -> s"${add_sub}",
+    "has_aclken" -> "true",
+    "c_latency" -> s"${latency}",
+    "c_rate" -> "1",
+    "c_a_exponent_width" -> s"$expWidth",
+    "c_a_fraction_width" -> s"$sigWidth",
+    "c_result_exponent_width" -> s"$expWidth",
+    "c_result_fraction_width" -> s"$sigWidth"
+  )
+  IPLogger.addIP(desiredName, config)
+}
+
+/// TODO put mode into argument
+class AddSubFIP(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean)
+    extends ComponentWrapper(new VivadoAddSubFIP(latency, expWidth, sigWidth, mode), expWidth, sigWidth)
+
+class VivadoCmpFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoFCMPIP(expWidth, sigWidth) {
+  override def desiredName: String = s"cmpf_${latency}_${expWidth}_${sigWidth}_ip"
+  val config = TreeMap(
+    "ip_name" -> "floating_point",
+    "operation_type" -> "Compare",
+    "has_aclken" -> "true",
+    "c_latency" -> s"${latency}",
+    "c_rate" -> "1",
+    "c_a_exponent_width" -> s"$expWidth",
+    "c_a_fraction_width" -> s"$sigWidth",
+    "c_result_exponent_width" -> s"$expWidth",
+    "c_result_fraction_width" -> s"$sigWidth"
+  )
+  IPLogger.addIP(desiredName, config)
+}
+
+class CmpFIP(latency: Int, expWidth: Int, sigWidth: Int)
+    extends CMPWrapper(new VivadoCmpFIP(latency, expWidth, sigWidth), expWidth, sigWidth)
+
+class VivadoIntToFloatIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoUnaryIP(expWidth, sigWidth) {
+  override def desiredName: String = s"sitofp_${latency}_${expWidth}_${sigWidth}"
+  val config = TreeMap(
+    "ip_name" -> "floating_point",
+    "operation_type" -> "Fixed_to_float",
+    "has_aclken" -> "true",
+    "c_latency" -> s"${latency}",
+    "c_rate" -> "1",
+    "c_a_exponent_width" -> s"$expWidth",
+    "c_a_fraction_width" -> s"$sigWidth",
+    "c_result_exponent_width" -> s"$expWidth",
+    "c_result_fraction_width" -> s"$sigWidth"
+  )
+  IPLogger.addIP(desiredName, config)
+}
+
+class IntToFloatIP(latency: Int, expWidth: Int, sigWidth: Int)
+    extends UnaryWrapper(new VivadoIntToFloatIP(latency, expWidth, sigWidth), expWidth, sigWidth)
+
+class VivadoFloatToIntIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoUnaryIP(expWidth, sigWidth) {
+  override def desiredName: String = s"fptosi_${latency}_${expWidth}_${sigWidth}"
+
+  val config = TreeMap(
+    "ip_name" -> "floating_point",
+    "operation_type" -> "Compare",
+    "has_aclken" -> "true",
+    "c_latency" -> s"${latency}",
+    "c_rate" -> "1",
+    "c_a_exponent_width" -> s"$expWidth",
+    "c_a_fraction_width" -> s"$sigWidth",
+    "c_result_exponent_width" -> s"$expWidth",
+    "c_result_fraction_width" -> s"$sigWidth"
+  )
+  IPLogger.addIP(desiredName, config)
+}
+
+class FloatToIntIP(latency: Int, expWidth: Int, sigWidth: Int)
+    extends UnaryWrapper(new VivadoFloatToIntIP(latency, expWidth, sigWidth), expWidth, sigWidth)
+
+class VivadoDivFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBinaryIP(expWidth, sigWidth) {
+  override def desiredName: String = s"divf_${latency}_${expWidth}_${sigWidth}_ip"
+
+  val config = TreeMap(
+    "ip_name" -> "floating_point",
+    "operation_type" -> "Compare",
+    "has_aclken" -> "true",
+    "c_latency" -> s"${latency}",
+    "c_rate" -> "1",
+    "c_a_exponent_width" -> s"$expWidth",
+    "c_a_fraction_width" -> s"$sigWidth",
+    "c_result_exponent_width" -> s"$expWidth",
+    "c_result_fraction_width" -> s"$sigWidth"
+  )
+  IPLogger.addIP(desiredName, config)
+}
+
+class DivFIP(latency: Int, expWidth: Int, sigWidth: Int)
+    extends ComponentWrapper(new VivadoDivFIP(latency, expWidth, sigWidth), expWidth, sigWidth)

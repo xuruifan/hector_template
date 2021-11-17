@@ -66,11 +66,12 @@ object playground extends ScalaModule with ScalafmtModule { m =>
   )
   override def ivyDeps = Agg(
     ivy"edu.berkeley.cs::chisel3:3.4.3",
+    ivy"com.lihaoyi::os-lib:0.7.8"
     // ivy"edu.berkeley.cs::hardfloat:1.2.4"
   )
   override def scalacPluginIvyDeps = Agg(
     ivy"edu.berkeley.cs:::chisel3-plugin:3.4.3",
-    ivy"org.scalamacros:::paradise:2.1.1"
+    ivy"org.scalamacros:::paradise:2.1.1",
   )
   object test extends Tests with Utest {
     override def ivyDeps = m.ivyDeps() ++ Agg(
