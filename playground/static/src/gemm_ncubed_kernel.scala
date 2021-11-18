@@ -87,14 +87,14 @@ class gemm extends MultiIOModule {
     val var66 = Reg(UInt(32.W))
     val var67 = Reg(UInt(64.W))
     val var68 = Reg(UInt(64.W))
-    val mulf_outline_0_0 = Module(new MulFBase(9, 11, 53))
+    val mulf_outline_0_0 = Module(new MulFIP(9, 11, 53))
     mulf_outline_0_0.ce := true.B
     val var69 = mulf_outline_0_0.operand0
     var69 := DontCare
     val var70 = mulf_outline_0_0.operand1
     var70 := DontCare
     val var71 = mulf_outline_0_0.result
-    val addf_outline_0_0 = Module(new AddSubFBase(13, 11, 53, true))
+    val addf_outline_0_0 = Module(new AddSubFIP(13, 11, 53, true))
     addf_outline_0_0.ce := true.B
     val var72 = addf_outline_0_0.operand0
     var72 := DontCare
@@ -597,7 +597,5 @@ class gemm extends MultiIOModule {
   val mem_global_2_test_data = IO(Output(UInt(64.W)))
   mem_global_2_test_data := mem_global_2.test_data
   mem_global_2.finished := done
-  mem_global_0.initMem("data_set/gemm_ncubed/in_0.txt");
-  mem_global_1.initMem("data_set/gemm_ncubed/in_1.txt");
 }
 

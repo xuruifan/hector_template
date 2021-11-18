@@ -3,6 +3,8 @@ package hls
 import chisel3._
 import chisel3.util._
 
+import scala.collection.mutable.TreeMap
+
 class BinaryUnit(width: Int = 32, func: (UInt, UInt) => UInt, shift: Int = 0) extends MultiIOModule {
   val operand0 = IO(Input(UInt(width.W)))
   val operand1 = IO(Input(UInt(width.W)))
@@ -30,6 +32,54 @@ class MulI(width: Int = 32, latency: Int = 2) extends MultiIOModule {
   val result = IO(Output(UInt(width.W)))
   
   result := ShiftRegister(operand0 * operand1, latency, ce)
+}
+
+class VivadoMulIIP(width: Int = 32, latency: Int) extends BlackBox {
+  val io = IO(new Bundle{
+    val CLK = Input(Clock())
+    val A = Input(UInt(width.W))
+    val B = Input(UInt(width.W))
+    val CE = Input(Bool())
+    val P = Output(UInt(width.W))
+  })
+  override def desiredName: String = s"muli_${width}_${latency}_ip"
+  val config = TreeMap(
+    "version" -> "12.0",
+    "ip_name" -> "mult_gen",
+    "portatype" -> "Signed",
+    "portawidth" -> s"${width}",
+    "portbtype" -> "Signed",
+    "portbwidth" -> s"${width}",
+    "multiplier_construction" -> "Use_Mults",
+    "outputwidthhigh" -> s"${width-1}",
+    "outputwidthlow" -> "0",
+    "pipestages" -> s"${latency-1}",
+    "clockenable" -> "true"
+  )
+  IPLogger.addIP(desiredName, config)
+}
+
+class MulIIP(width: Int = 32, latency: Int = 2) extends MultiIOModule {
+  val operand0 = IO(Input(UInt(width.W)))
+  val operand1 = IO(Input(UInt(width.W)))
+  val ce = IO(Input(Bool()))
+  val result = IO(Output(UInt(width.W)))
+
+  val ipcore = Module(new VivadoMulIIP(width, latency))
+  val operand0Reg = Reg(UInt(width.W))
+  val operand1Reg = Reg(UInt(width.W))
+  val ceReg = RegNext(ce)
+
+  when (ce) {
+    operand0Reg := operand0
+    operand1Reg := operand1
+  }
+
+  ipcore.io.CLK := clock
+  ipcore.io.A := operand0
+  ipcore.io.B := operand1
+  result := ipcore.io.P
+  ipcore.io.CE := ceReg
 }
 
 class DivI(width: Int = 32) extends BinaryUnit(width, _ / _) {}

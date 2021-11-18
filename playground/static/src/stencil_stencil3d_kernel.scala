@@ -767,14 +767,14 @@ class outline_3 extends MultiIOModule {
 	val var239 = Reg(UInt(32.W))
 	val var240 = Reg(UInt(32.W))
 	val var241 = Reg(UInt(32.W))
-	val muli_outline_3_0 = Module(new MulI(32, 2))
+	val muli_outline_3_0 = Module(new MulIIP(32, 2))
 	muli_outline_3_0.ce := true.B
 	val var242 = muli_outline_3_0.operand0
 	var242 := DontCare
 	val var243 = muli_outline_3_0.operand1
 	var243 := DontCare
 	val var244 = muli_outline_3_0.result
-	val muli_outline_3_1 = Module(new MulI(32, 2))
+	val muli_outline_3_1 = Module(new MulIIP(32, 2))
 	muli_outline_3_1.ce := true.B
 	val var245 = muli_outline_3_1.operand0
 	var245 := DontCare

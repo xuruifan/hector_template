@@ -63,7 +63,7 @@ class stencil extends MultiIOModule {
     val var42 = Reg(UInt(32.W))
     val var43 = Reg(UInt(32.W))
     val var44 = Reg(UInt(32.W))
-    val muli_outline_0_0 = Module(new MulI())
+    val muli_outline_0_0 = Module(new MulIIP())
     muli_outline_0_0.ce := true.B
     val var45 = muli_outline_0_0.operand0
     var45 := DontCare

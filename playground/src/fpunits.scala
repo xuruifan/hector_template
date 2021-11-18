@@ -285,9 +285,9 @@ class UnaryWrapper[T <: VivadoUnaryIP](genT: => T, expWidth: Int, sigWidth: Int)
   val IPCore = Module(genT)
 
   val operandReg = Reg(UInt(width.W))
-  val ceReg      = RegNext(ce)
+  val ceReg = RegNext(ce)
 
-  when(ceReg) {
+  when(ce) {
     operandReg := operand
   }
 
@@ -311,9 +311,9 @@ class ComponentWrapper[T <: VivadoBinaryIP](genT: => T, expWidth: Int, sigWidth:
 
   val operand0Reg = Reg(UInt(width.W))
   val operand1Reg = Reg(UInt(width.W))
-  val ceReg       = RegNext(ce)
+  val ceReg = RegNext(ce)
 
-  when(ceReg) {
+  when(ce) {
     operand0Reg := operand0
     operand1Reg := operand1
   }
@@ -344,7 +344,7 @@ class CMPWrapper[T <: VivadoFCMPIP](genT: => T, expWidth: Int, sigWidth: Int) ex
   val opcodeReg   = Reg(UInt(8.W))
   val ceReg       = RegNext(ce)
 
-  when(ceReg) {
+  when(ce) {
     operand0Reg := operand0
     operand1Reg := operand1
     opcodeReg   := opcode
@@ -367,17 +367,21 @@ class VivadoMulFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBin
   override def desiredName: String = s"mulf_${latency}_${expWidth}_${sigWidth}_ip"
   val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "version" -> "7.1",
     "a_precision_type" -> precision,
     "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Multiply",
     "has_aclken" -> "true",
-    "c_latency" -> s"${latency}",
+    "c_latency" -> s"${latency-1}",
     "c_rate" -> "1",
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
     "c_result_exponent_width" -> s"$expWidth",
-    "c_result_fraction_width" -> s"$sigWidth"
+    "c_result_fraction_width" -> s"$sigWidth",
+    "maximum_latency" -> "false",
+    "has_result_tready" -> "false",
+    "flow_control" -> "NonBlocking"
   )
   IPLogger.addIP(desiredName, config)
 }
@@ -391,6 +395,7 @@ class VivadoAddSubFIP(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean)
     val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val add_sub = if (mode) "Add" else "Sub"
   val config = TreeMap(
+    "version" -> "7.1",
     "a_precision_type" -> precision,
     "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
@@ -402,7 +407,10 @@ class VivadoAddSubFIP(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean)
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
     "c_result_exponent_width" -> s"$expWidth",
-    "c_result_fraction_width" -> s"$sigWidth"
+    "c_result_fraction_width" -> s"$sigWidth",
+    "maximum_latency" -> "false",
+    "has_result_tready" -> "false",
+    "flow_control" -> "NonBlocking"
   )
   IPLogger.addIP(desiredName, config)
 }
@@ -415,6 +423,7 @@ class VivadoCmpFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoFCM
   override def desiredName: String = s"cmpf_${latency}_${expWidth}_${sigWidth}_ip"
     val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "version" -> "7.1",
     "a_precision_type" -> precision,
     "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
@@ -425,7 +434,10 @@ class VivadoCmpFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoFCM
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
     "c_result_exponent_width" -> s"$expWidth",
-    "c_result_fraction_width" -> s"$sigWidth"
+    "c_result_fraction_width" -> s"$sigWidth",
+    "maximum_latency" -> "false",
+    "has_result_tready" -> "false",
+    "flow_control" -> "NonBlocking"
   )
   IPLogger.addIP(desiredName, config)
 }
@@ -437,6 +449,7 @@ class VivadoIntToFloatIP(latency: Int, expWidth: Int, sigWidth: Int) extends Viv
   override def desiredName: String = s"sitofp_${latency}_${expWidth}_${sigWidth}"
   val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "version" -> "7.1",
     "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Fixed_to_float",
@@ -446,7 +459,10 @@ class VivadoIntToFloatIP(latency: Int, expWidth: Int, sigWidth: Int) extends Viv
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
     "c_result_exponent_width" -> s"$expWidth",
-    "c_result_fraction_width" -> s"$sigWidth"
+    "c_result_fraction_width" -> s"$sigWidth",
+    "maximum_latency" -> "false",
+    "has_result_tready" -> "false",
+    "flow_control" -> "NonBlocking"
   )
   IPLogger.addIP(desiredName, config)
 }
@@ -458,6 +474,7 @@ class VivadoFloatToIntIP(latency: Int, expWidth: Int, sigWidth: Int) extends Viv
   override def desiredName: String = s"fptosi_${latency}_${expWidth}_${sigWidth}"
   val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "version" -> "7.1",
     "a_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Compare",
@@ -467,7 +484,10 @@ class VivadoFloatToIntIP(latency: Int, expWidth: Int, sigWidth: Int) extends Viv
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
     "c_result_exponent_width" -> s"$expWidth",
-    "c_result_fraction_width" -> s"$sigWidth"
+    "c_result_fraction_width" -> s"$sigWidth",
+    "maximum_latency" -> "false",
+    "has_result_tready" -> "false",
+    "flow_control" -> "NonBlocking"
   )
   IPLogger.addIP(desiredName, config)
 }
@@ -479,6 +499,7 @@ class VivadoDivFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBin
   override def desiredName: String = s"divf_${latency}_${expWidth}_${sigWidth}_ip"
   val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "version" -> "7.1",
     "a_precision_type" -> precision,
     "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
@@ -489,7 +510,10 @@ class VivadoDivFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBin
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
     "c_result_exponent_width" -> s"$expWidth",
-    "c_result_fraction_width" -> s"$sigWidth"
+    "c_result_fraction_width" -> s"$sigWidth",
+    "maximum_latency" -> "false",
+    "has_result_tready" -> "false",
+    "flow_control" -> "NonBlocking"
   )
   IPLogger.addIP(desiredName, config)
 }
