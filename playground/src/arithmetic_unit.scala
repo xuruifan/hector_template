@@ -23,12 +23,12 @@ class AddI(width: Int = 32) extends BinaryUnit(width, _ + _) {}
 class SubI(width: Int = 32) extends BinaryUnit(width, _ - _) {}
 
 // class MulI(width: Int = 32) extends BinaryUnit(width, _ * _, 4) {}
-class MulI(width: Int = 32, latency: Int = 4) extends MultiIOModule {
+class MulI(width: Int = 32, latency: Int = 2) extends MultiIOModule {
   val operand0 = IO(Input(UInt(width.W)))
   val operand1 = IO(Input(UInt(width.W)))
   val ce = IO(Input(Bool()))
   val result = IO(Output(UInt(width.W)))
-
+  
   result := ShiftRegister(operand0 * operand1, latency, ce)
 }
 

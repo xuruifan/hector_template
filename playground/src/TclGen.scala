@@ -11,7 +11,7 @@ object TclGen {
     val RTL   = ChiselStage.emitVerilog(genT)
     val IPGen = IPLogger.dumpTcl()
 
-    val projectDir = os.Path(projectPath)
+    val projectDir = os.pwd / os.RelPath(projectPath)
 
     if (os.exists(projectDir))
       os.remove.all(projectDir)

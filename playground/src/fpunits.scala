@@ -365,7 +365,10 @@ class CMPWrapper[T <: VivadoFCMPIP](genT: => T, expWidth: Int, sigWidth: Int) ex
 
 class VivadoMulFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBinaryIP(expWidth, sigWidth) {
   override def desiredName: String = s"mulf_${latency}_${expWidth}_${sigWidth}_ip"
+  val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "a_precision_type" -> precision,
+    "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Multiply",
     "has_aclken" -> "true",
@@ -385,13 +388,16 @@ class MulFIP(latency: Int, expWidth: Int, sigWidth: Int)
 class VivadoAddSubFIP(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean)
     extends VivadoBinaryIP(expWidth, sigWidth) {
   override def desiredName: String = s"addsubf_${mode}_${latency}_${expWidth}_${sigWidth}_ip"
+    val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val add_sub = if (mode) "Add" else "Sub"
   val config = TreeMap(
+    "a_precision_type" -> precision,
+    "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Add_Subtract",
     "add_sub_value" -> s"${add_sub}",
     "has_aclken" -> "true",
-    "c_latency" -> s"${latency}",
+    "c_latency" -> s"${latency-1}",
     "c_rate" -> "1",
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
@@ -407,11 +413,14 @@ class AddSubFIP(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean)
 
 class VivadoCmpFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoFCMPIP(expWidth, sigWidth) {
   override def desiredName: String = s"cmpf_${latency}_${expWidth}_${sigWidth}_ip"
+    val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "a_precision_type" -> precision,
+    "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Compare",
     "has_aclken" -> "true",
-    "c_latency" -> s"${latency}",
+    "c_latency" -> s"${latency-1}",
     "c_rate" -> "1",
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
@@ -426,11 +435,13 @@ class CmpFIP(latency: Int, expWidth: Int, sigWidth: Int)
 
 class VivadoIntToFloatIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoUnaryIP(expWidth, sigWidth) {
   override def desiredName: String = s"sitofp_${latency}_${expWidth}_${sigWidth}"
+  val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Fixed_to_float",
     "has_aclken" -> "true",
-    "c_latency" -> s"${latency}",
+    "c_latency" -> s"${latency-1}",
     "c_rate" -> "1",
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
@@ -445,12 +456,13 @@ class IntToFloatIP(latency: Int, expWidth: Int, sigWidth: Int)
 
 class VivadoFloatToIntIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoUnaryIP(expWidth, sigWidth) {
   override def desiredName: String = s"fptosi_${latency}_${expWidth}_${sigWidth}"
-
+  val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "a_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Compare",
     "has_aclken" -> "true",
-    "c_latency" -> s"${latency}",
+    "c_latency" -> s"${latency-1}",
     "c_rate" -> "1",
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",
@@ -465,12 +477,14 @@ class FloatToIntIP(latency: Int, expWidth: Int, sigWidth: Int)
 
 class VivadoDivFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBinaryIP(expWidth, sigWidth) {
   override def desiredName: String = s"divf_${latency}_${expWidth}_${sigWidth}_ip"
-
+  val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
   val config = TreeMap(
+    "a_precision_type" -> precision,
+    "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
     "operation_type" -> "Compare",
     "has_aclken" -> "true",
-    "c_latency" -> s"${latency}",
+    "c_latency" -> s"${latency-1}",
     "c_rate" -> "1",
     "c_a_exponent_width" -> s"$expWidth",
     "c_a_fraction_width" -> s"$sigWidth",

@@ -141,7 +141,7 @@ object TestStencil2d extends ChiselUtestTester {
         new stencil,
         Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
       ) { dut =>
-        dut.clock.setTimeout(1400000)
+        dut.clock.setTimeout(1000000)
         fork {
           dut.go.poke(true.B)
           dut.clock.step();

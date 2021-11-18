@@ -90,14 +90,14 @@ class spmv extends MultiIOModule {
     val var67 = Reg(UInt(64.W))
     val var68 = Reg(UInt(64.W))
     val var69 = Reg(UInt(64.W))
-    val mulf_outline_0_0 = Module(new MulFBase(9, 11, 53))
+    val mulf_outline_0_0 = Module(new MulFIP(9, 11, 53))
     mulf_outline_0_0.ce := true.B
     val var70 = mulf_outline_0_0.operand0
     var70 := DontCare
     val var71 = mulf_outline_0_0.operand1
     var71 := DontCare
     val var72 = mulf_outline_0_0.result
-    val addf_outline_0_0 = Module(new AddSubFBase(13, 11, 53, true))
+    val addf_outline_0_0 = Module(new AddSubFIP(13, 11, 53, true))
     addf_outline_0_0.ce := true.B
     val var73 = addf_outline_0_0.operand0
     var73 := DontCare
@@ -138,298 +138,298 @@ class spmv extends MultiIOModule {
     val shift_register = RegInit(0.U(2.W))
     when (go) {
       when (var15 > var16) {
-        done := true.B
-        } .otherwise {
-          start := true.B
-        }
+	done := true.B
+      } .otherwise {
+	start := true.B
+      }
     }
     def valid(stage: Int): Bool = {
       if (stage == 1) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 2) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 3) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 4) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 5) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 6) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 7) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 8) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 9) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 10) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 11) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 12) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 13) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 14) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 15) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 16) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 17) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 18) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 19) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 20) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 21) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 22) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 23) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 24) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 25) {
-        shift_register(1)
+	shift_register(1)
       } else if (stage == 26) {
-        shift_register(1)
+	shift_register(1)
       } else {
-        new_input
+	new_input
       }
     }
     val counter = RegInit(0.U(4.W))
     when (counter === 13.U) {
       counter := 0.U
+    }.otherwise {
+      when (start || shift_register =/= 0.U) {
+	counter := counter + 1.U
+      }
+    }
+    when (counter === 0.U) {
+      shift_register := Cat(shift_register(0, 0), new_input)
+    }
+    when (counter === 0.U) {
+      when (valid(0)) {
+	var22 := var76
+      }
+      when (valid(14)) {
+	var36 := var35
+      }
+    }
+    when (counter === 1.U) {
+      val var77 = var22 - var19
+      when (valid(1)) {
+	var62 := var77
+      }
+      val var78 = var77 + var19
+      when (valid(1)) {
+	var63 := var78
+      }
+      when (valid(1)) {
+	var23 := var22
+      }
+      when (valid(1)) {
+	var49 := var48
+      }
+      when (valid(15)) {
+	var37 := var36
+      }
+    }
+    when (counter === 2.U) {
+      var4 := var63
+      when (valid(2)) {
+	var3 := 1.U
+      }
+      when (valid(2)) {
+	var24 := var23
+      }
+      when (valid(2)) {
+	var50 := var49
+      }
+      when (valid(2)) {
+	var64 := var63
+      }
+      when (valid(16)) {
+	var38 := var37
+      }
+    }
+    when (counter === 3.U) {
+      when (valid(3)) {
+	var66 := var5
+      }
+      var1 := var64
+      when (valid(3)) {
+	var0 := 1.U
+      }
+      var10 := var5
+      when (valid(3)) {
+	var9 := 1.U
+      }
+      when (valid(3)) {
+	var25 := var24
+      }
+      when (valid(3)) {
+	var51 := var50
+      }
+      when (valid(3)) {
+	var65 := var64
+      }
+      when (valid(17)) {
+	var39 := var38
+      }
+    }
+    when (counter === 4.U) {
+      when (valid(4)) {
+	var67 := var2
+      }
+      when (valid(4)) {
+	var68 := var11
+      }
+      var70 := var2
+      var71 := var11
+      when (valid(4)) {
+	var26 := var25
+      }
+      when (valid(4)) {
+	var52 := var51
+      }
+      when (valid(18)) {
+	var40 := var39
+      }
+    }
+    when (counter === 5.U) {
+      when (valid(5)) {
+	var27 := var26
+      }
+      when (valid(5)) {
+	var53 := var52
+      }
+      when (valid(19)) {
+	var41 := var40
+      }
+    }
+    when (counter === 6.U) {
+      when (valid(6)) {
+	var28 := var27
+      }
+      when (valid(6)) {
+	var54 := var53
+      }
+      when (valid(20)) {
+	var42 := var41
+      }
+    }
+    when (counter === 7.U) {
+      when (valid(7)) {
+	var29 := var28
+      }
+      when (valid(7)) {
+	var55 := var54
+      }
+      when (valid(21)) {
+	var43 := var42
+      }
+    }
+    when (counter === 8.U) {
+      when (valid(8)) {
+	var30 := var29
+      }
+      when (valid(8)) {
+	var56 := var55
+      }
+      when (valid(22)) {
+	var44 := var43
+      }
+    }
+    when (counter === 9.U) {
+      when (valid(9)) {
+	var31 := var30
+      }
+      when (valid(9)) {
+	var57 := var56
+      }
+      when (valid(23)) {
+	var45 := var44
+      }
+    }
+    when (counter === 10.U) {
+      when (valid(10)) {
+	var32 := var31
+      }
+      when (valid(10)) {
+	var58 := var57
+      }
+      when (valid(24)) {
+	var46 := var45
+      }
+    }
+    when (counter === 11.U) {
+      when (valid(11)) {
+	var33 := var32
+      }
+      when (valid(11)) {
+	var59 := var58
+      }
+      when (valid(25)) {
+	var47 := var46
+      }
+    }
+    when (counter === 12.U) {
+      when (valid(12)) {
+	var34 := var33
+      }
+      when (valid(12)) {
+	var60 := var59
+      }
+      when (valid(26)) {
+	var60 := var75
+	var18 := var75
+      }
+    }
+    when (counter === 13.U) {
+      when (valid(13)) {
+	var69 := var72
+      }
+      var73 := var60
+      var74 := var72
+      when (valid(13)) {
+	var35 := var34
+      }
+      when (valid(13)) {
+	var61 := var60
+      }
+    }
+    when (counter === 12.U && valid(26)) {
+      done := !valid(12)
+    }
+    when (done) {
+      shift_register := 0.U
+      counter := 0.U
+    }
+    val ub_reg = Reg(UInt(32.W))
+    when (go) {
+      ub_reg := var16
+    }
+    val step_reg = Reg(UInt(32.W))
+    when (go) {
+      step_reg := var17
+    }
+    val upper_bound = Mux(go, var16, ub_reg)
+    val step = Mux(go, var17, step_reg)
+    new_input := start
+    when (start) {
+      when (var76 <= upper_bound) {
+	when (counter === 13.U) {
+	  var76 := var76 + step
+	}
       }.otherwise {
-        when (start || shift_register =/= 0.U) {
-          counter := counter + 1.U
-        }
+	start := false.B
+	new_input := false.B
       }
-      when (counter === 0.U) {
-        shift_register := Cat(shift_register(0, 0), new_input)
-      }
-      when (counter === 0.U) {
-        when (valid(0)) {
-          var22 := var76
-        }
-        when (valid(14)) {
-          var36 := var35
-        }
-      }
-      when (counter === 1.U) {
-        val var77 = var22 - var19
-        when (valid(1)) {
-          var62 := var77
-        }
-        val var78 = var77 + var19
-        when (valid(1)) {
-          var63 := var78
-        }
-        when (valid(1)) {
-          var23 := var22
-        }
-        when (valid(1)) {
-          var49 := var48
-        }
-        when (valid(15)) {
-          var37 := var36
-        }
-      }
-      when (counter === 2.U) {
-        var4 := var63
-        when (valid(2)) {
-          var3 := 1.U
-        }
-        when (valid(2)) {
-          var24 := var23
-        }
-        when (valid(2)) {
-          var50 := var49
-        }
-        when (valid(2)) {
-          var64 := var63
-        }
-        when (valid(16)) {
-          var38 := var37
-        }
-      }
-      when (counter === 3.U) {
-        when (valid(3)) {
-          var66 := var5
-        }
-        var1 := var64
-        when (valid(3)) {
-          var0 := 1.U
-        }
-        var10 := var5
-        when (valid(3)) {
-          var9 := 1.U
-        }
-        when (valid(3)) {
-          var25 := var24
-        }
-        when (valid(3)) {
-          var51 := var50
-        }
-        when (valid(3)) {
-          var65 := var64
-        }
-        when (valid(17)) {
-          var39 := var38
-        }
-      }
-      when (counter === 4.U) {
-        when (valid(4)) {
-          var67 := var2
-        }
-        when (valid(4)) {
-          var68 := var11
-        }
-        var70 := var2
-        var71 := var11
-        when (valid(4)) {
-          var26 := var25
-        }
-        when (valid(4)) {
-          var52 := var51
-        }
-        when (valid(18)) {
-          var40 := var39
-        }
-      }
-      when (counter === 5.U) {
-        when (valid(5)) {
-          var27 := var26
-        }
-        when (valid(5)) {
-          var53 := var52
-        }
-        when (valid(19)) {
-          var41 := var40
-        }
-      }
-      when (counter === 6.U) {
-        when (valid(6)) {
-          var28 := var27
-        }
-        when (valid(6)) {
-          var54 := var53
-        }
-        when (valid(20)) {
-          var42 := var41
-        }
-      }
-      when (counter === 7.U) {
-        when (valid(7)) {
-          var29 := var28
-        }
-        when (valid(7)) {
-          var55 := var54
-        }
-        when (valid(21)) {
-          var43 := var42
-        }
-      }
-      when (counter === 8.U) {
-        when (valid(8)) {
-          var30 := var29
-        }
-        when (valid(8)) {
-          var56 := var55
-        }
-        when (valid(22)) {
-          var44 := var43
-        }
-      }
-      when (counter === 9.U) {
-        when (valid(9)) {
-          var31 := var30
-        }
-        when (valid(9)) {
-          var57 := var56
-        }
-        when (valid(23)) {
-          var45 := var44
-        }
-      }
-      when (counter === 10.U) {
-        when (valid(10)) {
-          var32 := var31
-        }
-        when (valid(10)) {
-          var58 := var57
-        }
-        when (valid(24)) {
-          var46 := var45
-        }
-      }
-      when (counter === 11.U) {
-        when (valid(11)) {
-          var33 := var32
-        }
-        when (valid(11)) {
-          var59 := var58
-        }
-        when (valid(25)) {
-          var47 := var46
-        }
-      }
-      when (counter === 12.U) {
-        when (valid(12)) {
-          var34 := var33
-        }
-        when (valid(12)) {
-          var60 := var59
-        }
-        when (valid(26)) {
-          var60 := var75
-          var18 := var75
-        }
-      }
-      when (counter === 13.U) {
-        when (valid(13)) {
-          var69 := var72
-        }
-        var73 := var60
-        var74 := var72
-        when (valid(13)) {
-          var35 := var34
-        }
-        when (valid(13)) {
-          var61 := var60
-        }
-      }
-      when (counter === 12.U && valid(26)) {
-        done := !valid(12)
-      }
-      when (done) {
-        shift_register := 0.U
-        counter := 0.U
-      }
-      val ub_reg = Reg(UInt(32.W))
-      when (go) {
-        ub_reg := var16
-      }
-      val step_reg = Reg(UInt(32.W))
-      when (go) {
-        step_reg := var17
-      }
-      val upper_bound = Mux(go, var16, ub_reg)
-      val step = Mux(go, var17, step_reg)
-      new_input := start
-      when (start) {
-        when (var76 <= upper_bound) {
-          when (counter === 13.U) {
-            var76 := var76 + step
-          }
-          }.otherwise {
-            start := false.B
-            new_input := false.B
-          }
-      }
+    }
   }
   class main extends MultiIOModule {
     val go = IO(Input(Bool()))
@@ -486,88 +486,88 @@ class spmv extends MultiIOModule {
     val ready = go & (state === State.s0)
     switch (state) {
       is (State.s0) {
-        when (go) {
-          state := State.s1;
-        }
+	when (go) {
+	  state := State.s1;
+	}
       }
       is (State.s1) {
-        val var89 = 0.U <= 493.U
-        var79 := var89
-        val var90 = !var89
-        var80 := 0.U
-        state := State.s2;
-        when (var90.asBool()) {
-          state := State.s10;
-        }
+	val var89 = 0.U <= 493.U
+	var79 := var89
+	val var90 = !var89
+	var80 := 0.U
+	state := State.s2;
+	when (var90.asBool()) {
+	  state := State.s10;
+	}
       }
       is (State.s1_entry) {
-        val var91 = !var79
-        state := State.s2;
-        when (var91.asBool()) {
-          state := State.s10;
-        }
+	val var91 = !var79
+	state := State.s2;
+	when (var91.asBool()) {
+	  state := State.s10;
+	}
       }
       is (State.s2) {
-        var7 := var80
-        var6 := true.B
-        val var92 = var80 + 1.U
-        var82 := var92
-        state := State.s3;
+	var7 := var80
+	var6 := true.B
+	val var92 = var80 + 1.U
+	var82 := var92
+	state := State.s3;
       }
       is (State.s3) {
-        var81 := var8
-        var7 := var82
-        var6 := true.B
-        state := State.s4;
+	var81 := var8
+	var7 := var82
+	var6 := true.B
+	state := State.s4;
       }
       is (State.s4) {
-        var82 := var8
-        val var93 = var8 - 1.U
-        var82 := var93
-        state := State.s5;
+	var82 := var8
+	val var93 = var8 - 1.U
+	var82 := var93
+	state := State.s5;
       }
       is (State.s5) {
-        state := State.s6;
+	state := State.s6;
       }
       is (State.s6) {
-        var84 := var81
-        var85 := var82
-        var86 := 1.U
-        outline_0_0.go := 1.U
-        when (var88.asBool()) {
-          var83 := var87
-        }
-        state := State.s6_wait;
-        when (var88.asBool()) {
-          state := State.s7;
-        }
+	var84 := var81
+	var85 := var82
+	var86 := 1.U
+	outline_0_0.go := 1.U
+	when (var88.asBool()) {
+	  var83 := var87
+	}
+	state := State.s6_wait;
+	when (var88.asBool()) {
+	  state := State.s7;
+	}
       }
       is (State.s6_wait) {
-        when (var88.asBool()) {
-          var83 := var87
-        }
-        when (var88.asBool()) {
-          state := State.s7;
-        }
+	when (var88.asBool()) {
+	  var83 := var87
+	}
+	when (var88.asBool()) {
+	  state := State.s7;
+	}
       }
       is (State.s7) {
-        state := State.s8;
+	state := State.s8;
       }
       is (State.s8) {
-        var13 := var80
-        var14 := var83
-        var12 := true.B
-        state := State.s9;
+	var13 := var80
+	var14 := var83
+	var12 := true.B
+	state := State.s9;
       }
       is (State.s9) {
-        val var94 = var80 + 1.U
-        var80 := var94
-        val var95 = var94 <= 493.U
-        var79 := var95
-        state := State.s1_entry;
+	val var94 = var80 + 1.U
+	var80 := var94
+	val var95 = var94 <= 493.U
+	var79 := var95
+	state := State.s1_entry;
       }
       is (State.s10) {
-        done := 1.U
+	done := 1.U
       }
     }
   }

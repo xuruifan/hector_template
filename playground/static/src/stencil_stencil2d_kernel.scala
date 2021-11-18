@@ -108,154 +108,141 @@ class stencil extends MultiIOModule {
     var7 := DontCare
     val var2 = IO(Input(UInt(32.W)))
     val var8 = IO(Input(UInt(32.W)))
-    val shift_register = RegInit(0.U(3.W))
+    val shift_register = RegInit(0.U(6.W))
     when (go) {
       when (var9 > var10) {
-        done := true.B
-        } .otherwise {
-          start := true.B
-        }
+	done := true.B
+      } .otherwise {
+	start := true.B
+      }
     }
     def valid(stage: Int): Bool = {
       if (stage == 1) {
-        shift_register(0)
+	shift_register(0)
       } else if (stage == 2) {
-        shift_register(0)
+	shift_register(1)
       } else if (stage == 3) {
-        shift_register(1)
+	shift_register(2)
       } else if (stage == 4) {
-        shift_register(1)
+	shift_register(3)
       } else if (stage == 5) {
-        shift_register(2)
+	shift_register(4)
       } else {
-        new_input
+	new_input
       }
     }
-    val counter = RegInit(0.U(1.W))
-    when (counter === 1.U) {
-      counter := 0.U
+//    when (start) {
+      shift_register := Cat(shift_register(4, 0), new_input)
+//    }
+    when (true.B) {
+      when (valid(0)) {
+	var24 := var48
+      }
+      val var49 = var22 << 1.U
+      when (valid(1)) {
+	var34 := var49
+      }
+      val var50 = var22 + var49
+      when (valid(1)) {
+	var35 := var50
+      }
+      val var51 = var50 + var24
+      when (valid(1)) {
+	var36 := var51
+      }
+      val var52 = var20 + var22
+      when (valid(1)) {
+	var38 := var52
+      }
+      val var53 = var52 << 6.U
+      when (valid(1)) {
+	var39 := var53
+      }
+      val var54 = var53 + var21
+      when (valid(1)) {
+	var40 := var54
+      }
+      val var55 = var54 + var24
+      when (valid(1)) {
+	var41 := var55
+      }
+      when (valid(1)) {
+	var25 := var24
+      }
+      when (valid(1)) {
+	var30 := var29
+      }
+      var7 := var36
+      when (valid(2)) {
+	var6 := 1.U
+      }
+      var1 := var41
+      when (valid(2)) {
+	var0 := 1.U
+      }
+      when (valid(2)) {
+	var26 := var25
+      }
+      when (valid(2)) {
+	var31 := var30
+      }
+      when (valid(2)) {
+	var37 := var36
+      }
+      when (valid(2)) {
+	var42 := var41
+      }
+      when (valid(3)) {
+	var43 := var8
+      }
+      when (valid(3)) {
+	var44 := var2
+      }
+      var45 := var8
+      var46 := var2
+      when (valid(3)) {
+	var27 := var26
+      }
+      when (valid(3)) {
+	var32 := var31
+      }
+      when (valid(4)) {
+	var28 := var27
+      }
+      when (valid(4)) {
+	var33 := var32
+      }
+      val var56 = var33 + var47
+      when (valid(5)) {
+	var33 := var56
+	var16 := var56
+      }
+      when (valid(5)) {
+	done := !valid(4)
+      }
+    }
+    when (done) {
+      shift_register := 0.U
+    }
+    val ub_reg = Reg(UInt(32.W))
+    when (go) {
+      ub_reg := var10
+    }
+    val step_reg = Reg(UInt(32.W))
+    when (go) {
+      step_reg := var11
+    }
+    val upper_bound = Mux(go, var10, ub_reg)
+    val step = Mux(go, var11, step_reg)
+    new_input := start
+    when (start) {
+      when (var48 <= upper_bound) {
+	var48 := var48 + step
       }.otherwise {
-        when (start || shift_register =/= 0.U) {
-          counter := counter + 1.U
-        }
+	start := false.B
+	new_input := false.B
       }
-      when (counter === 0.U) {
-        shift_register := Cat(shift_register(1, 0), new_input)
-      }
-      when (counter === 0.U) {
-        when (valid(0)) {
-          var24 := var48
-        }
-        var7 := var36
-        when (valid(2)) {
-          var6 := 1.U
-        }
-        var1 := var41
-        when (valid(2)) {
-          var0 := 1.U
-        }
-        when (valid(2)) {
-          var26 := var25
-        }
-        when (valid(2)) {
-          var31 := var30
-        }
-        when (valid(2)) {
-          var37 := var36
-        }
-        when (valid(2)) {
-          var42 := var41
-        }
-        when (valid(4)) {
-          var28 := var27
-        }
-        when (valid(4)) {
-          var33 := var32
-        }
-      }
-      when (counter === 1.U) {
-        val var49 = var22 << 1.U
-        when (valid(1)) {
-          var34 := var49
-        }
-        val var50 = var22 + var49
-        when (valid(1)) {
-          var35 := var50
-        }
-        val var51 = var50 + var24
-        when (valid(1)) {
-          var36 := var51
-        }
-        val var52 = var20 + var22
-        when (valid(1)) {
-          var38 := var52
-        }
-        val var53 = var52 << 6.U
-        when (valid(1)) {
-          var39 := var53
-        }
-        val var54 = var53 + var21
-        when (valid(1)) {
-          var40 := var54
-        }
-        val var55 = var54 + var24
-        when (valid(1)) {
-          var41 := var55
-        }
-        when (valid(1)) {
-          var25 := var24
-        }
-        when (valid(1)) {
-          var30 := var29
-        }
-        when (valid(3)) {
-          var43 := var8
-        }
-        when (valid(3)) {
-          var44 := var2
-        }
-        var45 := var8
-        var46 := var2
-        when (valid(3)) {
-          var27 := var26
-        }
-        when (valid(3)) {
-          var32 := var31
-        }
-        val var56 = var33 + var47
-        when (valid(5)) {
-          var32 := var56
-          var16 := var56
-        }
-      }
-      when (counter === 1.U && valid(5)) {
-        done := !valid(3)
-      }
-      when (done) {
-        shift_register := 0.U
-        counter := 0.U
-      }
-      val ub_reg = Reg(UInt(32.W))
-      when (go) {
-        ub_reg := var10
-      }
-      val step_reg = Reg(UInt(32.W))
-      when (go) {
-        step_reg := var11
-      }
-      val upper_bound = Mux(go, var10, ub_reg)
-      val step = Mux(go, var11, step_reg)
-      new_input := start
-      when (start) {
-        when (var48 <= upper_bound) {
-          when (counter === 1.U) {
-            var48 := var48 + step
-          }
-          }.otherwise {
-            start := false.B
-            new_input := false.B
-          }
-      }
+    }
   }
   class main extends MultiIOModule {
     val go = IO(Input(Bool()))
@@ -307,145 +294,142 @@ class stencil extends MultiIOModule {
     val var5 = IO(Output(UInt(32.W)))
     var5 := DontCare
     object State extends ChiselEnum {
-      val s0, s1, s1_entry, s2, s2_entry, s3, s3_entry, s4, s4_wait, s5, s6, s7, s8, s8_0, s9, s10, s11, s12 = Value
+      val s0, s1, s1_entry, s2, s2_entry, s3, s3_entry, s4, s4_wait, s5, s6, s7, s8, s9, s10, s11, s12 = Value
     }
     val state = RegInit(State.s0)
     val ready = go & (state === State.s0)
     switch (state) {
       is (State.s0) {
-        when (go) {
-          state := State.s1;
-        }
+	when (go) {
+	  state := State.s1;
+	}
       }
       is (State.s1) {
-        val var75 = 0.U <= 125.U
-        var57 := var75
-        val var76 = !var75
-        var58 := 0.U
-        state := State.s2;
-        when (var76.asBool()) {
-          state := State.s12;
-        }
+	val var75 = 0.U <= 125.U
+	var57 := var75
+	val var76 = !var75
+	var58 := 0.U
+	state := State.s2;
+	when (var76.asBool()) {
+	  state := State.s12;
+	}
       }
       is (State.s1_entry) {
-        val var77 = !var57
-        state := State.s2;
-        when (var77.asBool()) {
-          state := State.s12;
-        }
+	val var77 = !var57
+	state := State.s2;
+	when (var77.asBool()) {
+	  state := State.s12;
+	}
       }
       is (State.s2) {
-        val var78 = 0.U <= 61.U
-        var59 := var78
-        val var79 = !var78
-        var60 := 0.U
-        state := State.s3;
-        when (var79.asBool()) {
-          state := State.s11;
-        }
+	val var78 = 0.U <= 61.U
+	var59 := var78
+	val var79 = !var78
+	var60 := 0.U
+	state := State.s3;
+	when (var79.asBool()) {
+	  state := State.s11;
+	}
       }
       is (State.s2_entry) {
-        val var80 = !var59
-        state := State.s3;
-        when (var80.asBool()) {
-          state := State.s11;
-        }
+	val var80 = !var59
+	state := State.s3;
+	when (var80.asBool()) {
+	  state := State.s11;
+	}
       }
       is (State.s3) {
-        val var81 = 0.U <= 2.U
-        var61 := var81
-        val var82 = !var81
-        var62 := 0.U
-        var63 := 0.U
-        when (var82.asBool()) {
-          var64 := 0.U
-        }
-        state := State.s4;
-        when (var82.asBool()) {
-          state := State.s6;
-        }
+	val var81 = 0.U <= 2.U
+	var61 := var81
+	val var82 = !var81
+	var62 := 0.U
+	var63 := 0.U
+	when (var82.asBool()) {
+	  var64 := 0.U
+	}
+	state := State.s4;
+	when (var82.asBool()) {
+	  state := State.s6;
+	}
       }
       is (State.s3_entry) {
-        val var83 = !var61
-        when (var83.asBool()) {
-          var64 := var63
-        }
-        state := State.s4;
-        when (var83.asBool()) {
-          state := State.s6;
-        }
+	val var83 = !var61
+	when (var83.asBool()) {
+	  var64 := var63
+	}
+	state := State.s4;
+	when (var83.asBool()) {
+	  state := State.s6;
+	}
       }
       is (State.s4) {
-        var66 := 0.U
-        var67 := 2.U
-        var68 := 1.U
-        var69 := var58
-        var70 := var60
-        var71 := var62
-        var72 := var63
-        outline_0_0.go := 1.U
-        when (var74.asBool()) {
-          var63 := var73
-        }
-        state := State.s4_wait;
-        when (var74.asBool()) {
-          state := State.s5;
-        }
+	var66 := 0.U
+	var67 := 2.U
+	var68 := 1.U
+	var69 := var58
+	var70 := var60
+	var71 := var62
+	var72 := var63
+	outline_0_0.go := 1.U
+	when (var74.asBool()) {
+	  var63 := var73
+	}
+	state := State.s4_wait;
+	when (var74.asBool()) {
+	  state := State.s5;
+	}
       }
       is (State.s4_wait) {
-        when (var74.asBool()) {
-          var63 := var73
-        }
-        when (var74.asBool()) {
-          state := State.s5;
-        }
+	when (var74.asBool()) {
+	  var63 := var73
+	}
+	when (var74.asBool()) {
+	  state := State.s5;
+	}
       }
       is (State.s5) {
-        var63 := var63
-        val var84 = var62 + 1.U
-        var62 := var84
-        val var85 = var84 <= 2.U
-        var61 := var85
-        state := State.s3_entry;
+	var63 := var63
+	val var84 = var62 + 1.U
+	var62 := var84
+	val var85 = var84 <= 2.U
+	var61 := var85
+	state := State.s3_entry;
       }
       is (State.s6) {
-        state := State.s7;
+	state := State.s7;
       }
       is (State.s7) {
-        val var86 = var58 << 6.U
-        var65 := var86
-        val var87 = var86 + var60
-        var62 := var87
-        state := State.s8;
+	val var86 = var58 << 6.U
+	var65 := var86
+	val var87 = var86 + var60
+	var62 := var87
+	state := State.s8;
       }
       is (State.s8) {
-        state := State.s8_0;
-      }
-      is (State.s8_0) {
-        state := State.s9;
+	state := State.s9;
       }
       is (State.s9) {
-        var4 := var62
-        var5 := var64
-        var3 := true.B
-        state := State.s10;
+	var4 := var62
+	var5 := var64
+	var3 := true.B
+	state := State.s10;
       }
       is (State.s10) {
-        val var88 = var60 + 1.U
-        var60 := var88
-        val var89 = var88 <= 61.U
-        var59 := var89
-        state := State.s2_entry;
+	val var88 = var60 + 1.U
+	var60 := var88
+	val var89 = var88 <= 61.U
+	var59 := var89
+	state := State.s2_entry;
       }
       is (State.s11) {
-        val var90 = var58 + 1.U
-        var58 := var90
-        val var91 = var90 <= 125.U
-        var57 := var91
-        state := State.s1_entry;
+	val var90 = var58 + 1.U
+	var58 := var90
+	val var91 = var90 <= 125.U
+	var57 := var91
+	state := State.s1_entry;
       }
       is (State.s12) {
-        done := 1.U
+	done := 1.U
       }
     }
   }
@@ -468,7 +452,7 @@ class stencil extends MultiIOModule {
   val mem_global_1_test_data = IO(Output(UInt(32.W)))
   mem_global_1_test_data := mem_global_1.test_data
   mem_global_1.finished := done
-  mem_global_0.initMem("data_set/stencil_stencil2d/in_0.txt");
-  mem_global_2.initMem("data_set/stencil_stencil2d/in_1.txt");
+  mem_global_0.initMem("data_set/stencil_stencil2d/in_0.txt")
+  mem_global_2.initMem("data_set/stencil_stencil2d/in_1.txt")
 }
 
