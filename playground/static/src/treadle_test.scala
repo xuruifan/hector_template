@@ -34,7 +34,7 @@ object TestGemmNcubedTreadle extends FlatSpec with Matchers with App {
 
   tester.poke("go", 1)
   var clock = 0
-  val threshold = 2000000
+  val threshold = 200000000
   while (tester.peek("done") != 1 && clock < threshold) {
     tester.step()
     clock += 1
