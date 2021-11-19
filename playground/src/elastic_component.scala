@@ -305,6 +305,26 @@ class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
   data_in <> data_out
 }
 
+class Select(size: Int = 32) extends MultiIOModule {
+  val dataIn = IO(Vec(2, Flipped(DecoupledIO(UInt(size.W)))))
+  val condition = IO(Flipped(DecoupledIO(Bool())))
+  val dataOut = IO(DecoupledIO(UInt(size.W)))
+
+  private val join = Module(new Join(3))
+  join.pValid(0) := dataIn(0).valid
+  join.pValid(1) := dataIn(1).valid
+  join.pValid(2) := condition.valid
+
+  join.nReady := dataOut.ready
+
+  dataIn(0).ready := join.ready(0)
+  dataIn(1).ready := join.ready(1)
+  condition.ready := join.ready(2)
+
+  dataOut.valid := join.valid
+  dataOut.bits := dataIn(condition.bits).bits
+}
+
 class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
   private val addrWidth = log2Ceil(size)
   val address_in = IO(Flipped(DecoupledIO(UInt(addrWidth.W))))
