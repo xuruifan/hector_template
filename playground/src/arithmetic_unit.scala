@@ -30,19 +30,21 @@ class MulI(width: Int = 32, latency: Int = 2) extends MultiIOModule {
   val operand1 = IO(Input(UInt(width.W)))
   val ce = IO(Input(Bool()))
   val result = IO(Output(UInt(width.W)))
-  
+
   result := ShiftRegister(operand0 * operand1, latency, ce)
 }
 
 class VivadoMulIIP(width: Int = 32, latency: Int) extends BlackBox {
-  val io = IO(new Bundle{
+  val io = IO(new Bundle {
     val CLK = Input(Clock())
     val A = Input(UInt(width.W))
     val B = Input(UInt(width.W))
     val CE = Input(Bool())
     val P = Output(UInt(width.W))
   })
+
   override def desiredName: String = s"muli_${width}_${latency}_ip"
+
   val config = TreeMap(
     "version" -> "12.0",
     "ip_name" -> "mult_gen",
@@ -51,9 +53,9 @@ class VivadoMulIIP(width: Int = 32, latency: Int) extends BlackBox {
     "portbtype" -> "Signed",
     "portbwidth" -> s"${width}",
     "multiplier_construction" -> "Use_Mults",
-    "outputwidthhigh" -> s"${width-1}",
+    "outputwidthhigh" -> s"${width - 1}",
     "outputwidthlow" -> "0",
-    "pipestages" -> s"${latency-1}",
+    "pipestages" -> s"${latency - 1}",
     "clockenable" -> "true"
   )
   IPLogger.addIP(desiredName, config)
@@ -70,7 +72,7 @@ class MulIIP(width: Int = 32, latency: Int = 2) extends MultiIOModule {
   val operand1Reg = Reg(UInt(width.W))
   val ceReg = RegNext(ce)
 
-  when (ce) {
+  when(ce) {
     operand0Reg := operand0
     operand1Reg := operand1
   }
@@ -143,6 +145,7 @@ class MulIDynamic(width: Int = 32, latency: Int = 4) extends MultiIOModule {
   muli.operand1 := operand1.bits
   result.bits := muli.result
 }
+
 class DivIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ / _) {}
 
 class CmpI(width: Int = 32, func: (UInt, UInt) => Bool) extends MultiIOModule {
@@ -405,4 +408,15 @@ class Constant(size: Int = 32) extends MultiIOModule {
   control <> dataOut
   dataOut.bits := dataIn.bits
   dataIn.ready := true.B
+}
+
+class NegFDynamic(expWidth: Int, sigWidth: Int) extends MultiIOModule {
+  val width = (expWidth + sigWidth).W
+  val dataIn = IO(Flipped(DecoupledIO(UInt(width))))
+  val dataOut = IO(DecoupledIO(UInt(width)))
+
+  dataIn.ready := dataOut.ready
+  dataOut.valid := dataIn.valid
+  dataOut.bits := NegF(expWidth, sigWidth, dataIn.bits)
+
 }
