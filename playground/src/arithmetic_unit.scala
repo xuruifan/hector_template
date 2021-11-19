@@ -158,6 +158,8 @@ class GreaterEqualthanI(width: Int = 32) extends CmpI(width, _ >= _) {}
 
 class LessthanI(width: Int = 32) extends CmpI(width, _ < _) {}
 
+class NotEqualI(width: Int = 32) extends CmpI(width, _ =/= _) {}
+
 class LessEqualthanI(width: Int = 32) extends CmpI(width, _ <= _) {}
 
 class EqualI(width: Int = 32) extends CmpI(width, _ === _) {}
@@ -179,6 +181,8 @@ class GreaterEqualthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ >= 
 class LessthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ < _) {}
 
 class LessEqualthanIDynamic(width: Int = 32) extends CmpIDynamic(width, _ <= _) {}
+
+class NotEqualIDynamic(width: Int = 32) extends CmpIDynamic(width, _ =/= _) {}
 
 class EqualIDynamic(width: Int = 32) extends CmpIDynamic(width, _ === _) {}
 
