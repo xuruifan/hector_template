@@ -350,7 +350,7 @@ class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
   data_out.valid := join.valid
 
   address_out.bits := address_in.bits
-  data_out.bits := address_in.bits
+  data_out.bits := data_in.bits
 }
 
 class insideMemory(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModule with InitMem {
