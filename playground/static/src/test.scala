@@ -49,26 +49,26 @@ trait dynamicDelay {
   }
 }
 
-// object TestTopModule extends ChiselUtestTester {
-//   val tests = Tests {
-//     test("topModule") {
-//       testCircuit(
-//         new TopModule,
-//         Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
-//       ) { dut =>
-//         dut.clock.setTimeout(60000)
-//         fork {
-//           dut.go.poke(true.B)
-//           dut.clock.step()
-//         } fork {
-//           while (!dut.done.peek.litToBoolean) {
-//             dut.clock.step()
-//           }
-//         } join()
-//       }
-//     }
-//   }
-// }
+object TestAelossPull extends ChiselUtestTester {
+  val tests = Tests {
+    test("aeloss_pull") {
+      testCircuit(
+        new aeloss_pull,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(1400000)
+        fork {
+          dut.go.poke(true.B)
+          dut.clock.step();
+        }.fork {
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step();
+          }
+        }.join()
+      }
+    }
+  }
+}
 
 object TestFFTStrided extends ChiselUtestTester {
   val tests = Tests {
