@@ -49,6 +49,33 @@ trait dynamicDelay {
   }
 }
 
+object TestAelossPush extends ChiselUtestTester {
+  val tests = Tests {
+    test("aeloss_push") {
+      testCircuit(
+        new aeloss_push,
+//        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation),
+        Seq(VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(2000000)
+        fork {
+          dut.go.poke(true.B)
+          dut.clock.step();
+        }.fork {
+          var cycle_num = 0
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step();
+            cycle_num += 1
+          }
+          val result = dut.result.peek()
+          val fpresult = longBitsToDouble(result.litValue().toLong)
+          println("cycle: %d, push: %.6f\n".format(cycle_num, fpresult))
+        }.join()
+      }
+    }
+  }
+}
+
 object TestAelossPull extends ChiselUtestTester {
   val tests = Tests {
     test("aeloss_pull") {

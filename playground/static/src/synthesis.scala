@@ -15,3 +15,11 @@ object synthStencil3d extends App {
 object synthGemmNcubed extends App {
   TclGen(new gemm, "test_run_dir/synth_gemm_ncubed/", "gemm")
 }
+
+object synthAelossPull extends App {
+  TclGen(new aeloss_pull, "test_run_dir/synth_aeloss_pull/", "aeloss_pull")
+}
+
+object synthAelossPush extends App {
+  TclGen(new aeloss_push, "test_run_dir/synth_aeloss_push/", "aeloss_push")
+}

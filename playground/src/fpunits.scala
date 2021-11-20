@@ -400,7 +400,7 @@ class VivadoAddSubFIP(latency: Int, expWidth: Int, sigWidth: Int, mode: Boolean)
   override def desiredName: String = s"addsubf_${mode}_${latency}_${expWidth}_${sigWidth}_ip"
 
   val precision = if (expWidth + sigWidth == 32) "Single" else "Double"
-  val add_sub   = if (mode) "Add" else "Sub"
+  val add_sub   = if (mode) "Add" else "Subtract"
   val config = TreeMap(
     "version" -> "7.1",
     "a_precision_type" -> precision,
