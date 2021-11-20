@@ -14,6 +14,10 @@ import scala.util.Random
 import java.lang.Float.{floatToIntBits, intBitsToFloat}
 import java.lang.Double.{doubleToLongBits, longBitsToDouble}
 
+object Elaborate extends App {
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new aeloss_pull())))
+}
+
 trait dynamicDelay {
   def connection[T <: Data](outer: DecoupledIO[T], inner: DecoupledIO[T]): Unit = {
     val reg_bits = Reg(outer.bits.cloneType)

@@ -18,8 +18,6 @@ import java.lang.Double.{doubleToLongBits, longBitsToDouble}
 object Elaborate extends App {
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new branch_prediction())))
   //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new main())))
-  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new spmv())))
-  //  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new ReadWriteMem(1024))))
 }
 
 /*
@@ -191,37 +189,22 @@ object TestFloat extends ChiselUtestTester {
   }
 }
 
-object TestSpmv extends ChiselUtestTester {
-  class spmvWrapper extends MultiIOModule with dynamicDelay {
-    val var0 = IO(Flipped(DecoupledIO(UInt(0.W))))
-    val var1 = IO(DecoupledIO(UInt(0.W)))
-
-    val main = Module(new spmv)
-
-    val finish = IO(Input(Bool()))
-    main.finish := finish
-    val test_addr = IO(Input(UInt(9.W)))
-    main.mem_1_addr := test_addr
-    val test_data = IO(Output(UInt(64.W)))
-    test_data := main.mem_1_data
-
-    connection(var0, main.var75)
-    connection_inverse(var1, main.var76)
-  }
-
+object TestTopModule extends ChiselUtestTester {
   val tests = Tests {
-    test("spmv") {
+    test("topModule") {
       testCircuit(
-        new spmvWrapper,
+        new TopModule,
         Seq(WriteVcdAnnotation, VerilatorBackendAnnotation)
       ) { dut =>
         dut.clock.setTimeout(60000)
         fork {
-          dut.var0.valid.poke(true.B)
+          dut.go.poke(true.B)
           dut.clock.step()
-          } fork {
-            dut.clock.step(60000)
-          } join()
+        } fork {
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step()
+          }
+        } join()
       }
     }
   }
