@@ -514,7 +514,7 @@ class VivadoDivFIP(latency: Int, expWidth: Int, sigWidth: Int) extends VivadoBin
     "a_precision_type" -> precision,
     "result_precision_type" -> precision,
     "ip_name" -> "floating_point",
-    "operation_type" -> "Compare",
+    "operation_type" -> "Divide",
     "has_aclken" -> "true",
     "c_latency" -> s"${latency - 1}",
     "c_rate" -> "1",
