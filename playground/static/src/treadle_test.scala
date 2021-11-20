@@ -22,7 +22,7 @@ object TestAelossPullTreadle extends FlatSpec with Matchers with App {
 
   val input0 = Source.fromFile("data_set/aeloss_pull/in_0.txt").getLines.toSeq.map(str => BigInt(str, 16))
   val input1 = Source.fromFile("data_set/aeloss_pull/in_1.txt").getLines.toSeq.map(str => BigInt(str, 16))
-  val input2 = Source.fromFile("data_set/aeloss_pull/in_1.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input2 = Source.fromFile("data_set/aeloss_pull/in_2.txt").getLines.toSeq.map(str => BigInt(str, 16))
 
   val tester = TreadleTester(
     Seq(
@@ -59,7 +59,7 @@ object TestAelossPullTreadle extends FlatSpec with Matchers with App {
   for (i <- 0 to 1023) {
     val x   = tester.peekMemory("mem_global_2_.mem", i).toLong
     val res = longBitsToDouble(x)
-    printer.write(s"$res\n")
+    printer.write("%.6f\n".format(res))
   }
   printer.close()
 
