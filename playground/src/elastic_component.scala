@@ -295,7 +295,7 @@ class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   join.nReady := address_out.ready
 
-  address_in.ready:= join.ready(0)
+  address_in.ready := join.ready(0)
   control.ready := join.ready(1)
 
   address_out.valid := join.valid
@@ -342,7 +342,7 @@ class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   join.nReady := address_out.ready & data_out.ready
 
-  address_in.ready:= join.ready(0)
+  address_in.ready := join.ready(0)
   data_in.ready := join.ready(1)
   control.ready := join.ready(2)
 
@@ -492,4 +492,12 @@ class DelayBuffer(latency: Int, size: Int = 32) extends MultiIOModule {
     }
   }
   valid_out := shift_register(latency - 1)
+}
+
+class ElasticFIFO(length: Int, size: Int = 32) extends MultiIOModule {
+  val dataIn = IO(Flipped(DecoupledIO(UInt(size.W))))
+  val dataOut = IO(DecoupledIO(UInt(size.W)))
+
+  val fifo = Queue(dataIn, length)
+  dataOut <> fifo
 }
