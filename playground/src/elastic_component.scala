@@ -320,7 +320,7 @@ class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   val control = IO(Flipped(DecoupledIO(UInt(0.W))))
 
-  control.ready := true.B  
+  control.ready := true.B
 
   address_in <> address_out
   data_in <> data_out
@@ -491,6 +491,52 @@ class DynMem(loadNum: Int, storeNum: Int)(size: Int = 32, width: Int = 32) exten
         when(i.U === select) {
           buffer(i).dataIn.bits := data
         }
+      }
+    }
+  } else if (loadNum == 1 && storeNum == 1) {
+    mem.addr := DontCare
+    mem.r_en := false.B
+    mem.w_data := DontCare
+    mem.w_en := false.B
+    load_address(0).ready := false.B
+    store_data(0).ready := false.B
+    store_address(0).ready := false.B
+    when(store_address(0).valid) {
+      val join = Module(new Join())
+
+      join.pValid(0) := store_address(0).valid
+      join.pValid(1) := store_data(0).valid
+      store_address(0).ready := join.ready(0)
+      store_data(0).ready := join.ready(1)
+      join.nReady := true.B
+
+      mem.w_en := join.valid
+      mem.addr := store_address(0).bits
+      mem.w_data := store_data(0).bits
+    }.otherwise {
+      val buffer = Module(new TEHB(width))
+      buffer.dataIn.bits := DontCare
+      buffer.dataIn.valid := false.B
+      buffer.dataOut <> load_data(0)
+      val arb = Module(new Arbiter(UInt(addrWidth.W), 1))
+      arb.io.out.ready := true.B
+      arb.io.in(0).valid := load_address(0).valid & buffer.dataIn.ready
+      arb.io.in(0).bits := load_address(0).bits
+      load_address(0).ready := arb.io.in(0).ready & buffer.dataIn.ready
+      val valid = RegInit(false.B)
+      val data = RegInit(0.U(width.W))
+      when(arb.io.out.valid) {
+        mem.r_en := true.B
+        mem.addr := load_address(arb.io.chosen).bits
+      }
+      valid := arb.io.out.valid
+      buffer.dataIn.valid := valid
+
+      when(valid) {
+        buffer.dataIn.bits := mem.r_data
+        data := mem.r_data
+      }.otherwise {
+        buffer.dataIn.bits := data
       }
     }
   } else {
