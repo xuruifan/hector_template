@@ -15,6 +15,71 @@ import java.io._
 import java.lang.Double.{longBitsToDouble}
 import java.nio.ByteBuffer
 
+object TestAggregateTreadle extends FlatSpec with Matchers with App {
+
+  val s = ChiselStage.emitFirrtl(new aggregate)
+
+  val input0 = Source.fromFile("data_set/aggregate/in_0.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input1 = Source.fromFile("data_set/aggregate/in_1.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input2 = Source.fromFile("data_set/aggregate/in_2.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input3 = Source.fromFile("data_set/aggregate/in_3.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input4 = Source.fromFile("data_set/aggregate/in_4.txt").getLines.toSeq.map(str => BigInt(str, 16))
+  val input5 = Source.fromFile("data_set/aggregate/in_5.txt").getLines.toSeq.map(str => BigInt(str, 16))
+
+  val tester = TreadleTester(
+    Seq(
+      FirrtlSourceAnnotation(s),
+      treadle.WriteVcdAnnotation,
+      TargetDirAnnotation("test_run_dir/aggregate"),
+      OutputFileAnnotation("aggregate"),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("aggregate").module("aggregate").instOf("mem_global_9", "ReadMem_5").ref("mem"),
+        input0
+      ),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("aggregate").module("aggregate").instOf("mem_global_8", "ReadMem_4").ref("mem"),
+        input1
+      ),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("aggregate").module("aggregate").instOf("mem_global_7", "ReadMem_3").ref("mem"),
+        input2
+      ),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("aggregate").module("aggregate").instOf("mem_global_6", "ReadMem_2").ref("mem"),
+        input3
+      ),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("aggregate").module("aggregate").instOf("mem_global_5", "ReadMem_1").ref("mem"),
+        input4
+      ),
+      MemoryArrayInitAnnotation(
+        CircuitTarget("aggregate").module("aggregate").instOf("mem_global_4", "ReadMem").ref("mem"),
+        input5
+      )
+    )
+  )
+
+  tester.poke("go", 1)
+  var clock     = 0
+  val threshold = 200000
+  while (tester.peek("done") != 1 && clock < threshold) {
+    tester.step()
+    clock += 1
+  }
+  if (clock >= threshold)
+    println("Time Out!")
+  println("Cycles :", clock)
+  // println(s"clock $clock")
+  // val printer = new PrintWriter(new File("data_set/aggregate/out.txt"))
+  // for (i <- 0 to 1023) {
+  //   val x   = tester.peekMemory("mem_global_2_.mem", i).toLong
+  //   val res = longBitsToDouble(x)
+  //   printer.write("%.6f\n".format(res))
+  // }
+  // printer.close()
+
+  tester.finish
+}
 
 object TestAelossPullTreadle extends FlatSpec with Matchers with App {
 

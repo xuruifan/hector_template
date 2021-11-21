@@ -49,6 +49,30 @@ trait dynamicDelay {
   }
 }
 
+object TestAggregate extends ChiselUtestTester {
+  val tests = Tests {
+    test("aggregate") {
+      testCircuit(
+        new aggregate,
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation),
+//        Seq(VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(2000000)
+        fork {
+          dut.go.poke(true.B)
+          dut.clock.step();
+        }.fork {
+          var cycle_num = 0
+          while (!dut.done.peek.litToBoolean) {
+            dut.clock.step();
+            cycle_num += 1
+          }
+        }.join()
+      }
+    }
+  }
+}
+
 object TestAelossPush extends ChiselUtestTester {
   val tests = Tests {
     test("aeloss_push") {
