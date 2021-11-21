@@ -242,6 +242,37 @@ class Control_Merge(size: Int = 32) extends MultiIOModule {
   condition.bits := tehb.dataOut.bits
 }
 
+/*class MuxDynamic(size: Int = 32)(input: Int = 2) extends MultiIOModule {
+  val condition_size = log2Ceil(input)
+  val dataIn = IO(Vec(input, Flipped(DecoupledIO(UInt(size.W)))))
+  val dataOut = IO(DecoupledIO(UInt(size.W)))
+
+  val condition = IO(Flipped(DecoupledIO(UInt(condition_size.W))))
+  condition.ready := true.B
+
+  private val tehb = Module(new TEHB(size))
+  tehb.dataOut <> dataOut
+
+  for (i <- 0 until input) {
+    dataIn(i).ready := tehb.dataIn.ready
+  }
+  private val tmp_data_out = Wire(UInt(size.W))
+  private val tmp_valid = Wire(Bool())
+
+  tmp_data_out := dataIn(0).bits
+  tmp_valid := false.B
+
+  for (i <- (0 to input - 1).reverse) {
+    when(dataIn(i).valid) {
+      tmp_data_out := dataIn(i).bits
+      tmp_valid := true.B
+    }
+  }
+
+  tehb.dataIn.bits := tmp_data_out
+  tehb.dataIn.valid := tmp_valid
+}*/
+
 class MuxDynamic(size: Int = 32)(input: Int = 2) extends MultiIOModule {
   val condition_size = log2Ceil(input)
 
