@@ -115,7 +115,7 @@ class ReadWriteMem(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIO
   val w_en = writeArb.dataOut.valid
 
   val arb = Module(new MyArbiter(addrWidth + width)(2))
-  arb.dataIn(0) <> readArb.dataOut
+  arb.dataIn(0) <> readArb.dataOut // FIXME, unmatched width
   arb.dataIn(1) <> writeArb.dataOut
   val addr = arb.dataOut.bits(addrWidth - 1, 0)
   val w_data = arb.dataOut.bits(addrWidth + width - 1, addrWidth)
