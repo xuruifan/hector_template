@@ -324,6 +324,12 @@ class Load(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   address_in <> address_out
   data_in <> data_out
+/*  val addr = Module(new ElasticFIFO(1, addrWidth))
+  addr.dataIn <> address_in
+  addr.dataOut <> address_out
+  val data = Module(new ElasticFIFO(1, width))
+  data.dataIn <> data_in
+  data.dataOut <> data_out*/
 }
 
 class Select(size: Int = 32) extends MultiIOModule {
@@ -343,7 +349,7 @@ class Select(size: Int = 32) extends MultiIOModule {
   condition.ready := join.ready(2)
 
   dataOut.valid := join.valid
-  dataOut.bits := dataIn(condition.bits).bits
+  dataOut.bits := dataIn(!condition.bits).bits
 }
 
 class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
@@ -371,6 +377,12 @@ class Store(size: Int = 32, width: Int = 32) extends MultiIOModule {
 
   address_out.bits := address_in.bits
   data_out.bits := data_in.bits
+  val addr = Module(new ElasticBuffer(addrWidth))
+  addr.dataIn <> address_in
+  addr.dataOut <> address_out
+  val data = Module(new ElasticBuffer(width))
+  data.dataIn <> data_in
+  data.dataOut <> data_out
 }
 
 class insideMemory(size: Int, width: Int = 32, portNum: Int = 1) extends MultiIOModule with InitMem {
@@ -566,4 +578,5 @@ class ElasticFIFO(length: Int, size: Int = 32) extends MultiIOModule {
 
   val fifo = Queue(dataIn, length)
   dataOut <> fifo
+//  dataIn <> dataOut
 }

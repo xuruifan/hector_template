@@ -15,7 +15,7 @@ import java.lang.Float.{floatToIntBits, intBitsToFloat}
 import java.lang.Double.{doubleToLongBits, longBitsToDouble}
 
 object Elaborate extends App {
-  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new aeloss_pull())))
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new stencil())))
 }
 
 trait dynamicDelay {
@@ -189,6 +189,42 @@ object TestGemm extends ChiselUtestTester {
     }
   }
 }
+
+/*object TestAelossPush extends ChiselUtestTester {
+  class PushWrapper extends MultiIOModule with dynamicDelay {
+    val var0 = IO(Flipped(DecoupledIO(UInt(0.W))))
+    val var1 = IO(DecoupledIO(UInt(64.W)))
+    val var2 = IO(DecoupledIO(UInt(0.W)))
+
+    val main = Module(new aeloss_push)
+
+    val finish = IO(Input(Bool()))
+    main.finish := finish
+
+    connection(var0, main.var0)
+    connection_inverse(var1, main.var1)
+    connection_inverse(var2, main.var2)
+  }
+
+  val tests = Tests {
+    test("aeloss_push") {
+      testCircuit(
+        new PushWrapper,
+        //Seq(WriteVcdAnnotation, VerilatorBackendAnnotation),
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation),
+        //        Seq(VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(2000000)
+        fork {
+          dut.var0.valid.poke(true.B)
+          dut.clock.step()
+          } fork {
+            dut.clock.step(2000000)
+          } join()
+      }
+    }
+  }
+}*/
 
 object TestAelossPush extends ChiselUtestTester {
   class PushWrapper extends MultiIOModule with dynamicDelay {

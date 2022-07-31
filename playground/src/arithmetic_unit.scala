@@ -78,8 +78,8 @@ class MulIIP(width: Int = 32, latency: Int = 2) extends MultiIOModule {
   }
 
   ipcore.io.CLK := clock
-  ipcore.io.A := operand0
-  ipcore.io.B := operand1
+  ipcore.io.A := operand0Reg
+  ipcore.io.B := operand1Reg
   result := ipcore.io.P
   ipcore.io.CE := ceReg
 }
@@ -112,6 +112,16 @@ class XorDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ ^ _) {}
 
 class AddIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ + _) {}
 
+class ShiftLeftDynamic(width: Int = 32) extends MultiIOModule {
+  val operand0 = IO(Flipped(DecoupledIO(UInt(width.W))))
+  val operand1 = IO(Flipped(DecoupledIO(UInt(10.W))))
+  val result = IO(DecoupledIO(UInt(width.W)))
+  result.bits := operand0.bits >> operand1.bits
+  result.valid := operand0.valid & operand1.valid
+  operand0.ready := operand1.valid & result.ready
+  operand1.ready := operand0.valid & result.ready
+}
+
 class SubIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ - _) {}
 
 //class MulIDynamic(width: Int = 32) extends BinaryUnitDynamic(width, _ * _) {}
@@ -140,7 +150,9 @@ class MulIDynamic(width: Int = 32, latency: Int = 4) extends MultiIOModule {
   result.valid := oehb.dataOut.valid
 
   val muli = Module(new MulI(width, latency))
-  muli.ce := oehb.dataIn.ready
+  //  val muli = Module(new MulI(width, latency))
+  val ce = RegNext(oehb.dataIn.ready)
+  muli.ce := ce
   muli.operand0 := operand0.bits
   muli.operand1 := operand1.bits
   result.bits := muli.result
@@ -215,7 +227,8 @@ class MulFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   result.valid := oehb.dataOut.valid
 
   val mulf = Module(new MulFBase(latency, expWidth, sigWidth))
-  mulf.ce := oehb.dataIn.ready
+  val ce = RegNext(oehb.dataIn.ready)
+  mulf.ce := ce
   mulf.operand0 := operand0.bits
   mulf.operand1 := operand1.bits
   result.bits := mulf.result
@@ -247,7 +260,8 @@ class AddFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   result.valid := oehb.dataOut.valid
 
   val addf = Module(new AddSubFBase(latency, expWidth, sigWidth, true))
-  addf.ce := oehb.dataIn.ready
+  val ce = RegNext(oehb.dataIn.ready)
+  addf.ce := ce
   addf.operand0 := operand0.bits
   addf.operand1 := operand1.bits
   result.bits := addf.result
@@ -279,7 +293,8 @@ class SubFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   result.valid := oehb.dataOut.valid
 
   val subf = Module(new AddSubFBase(latency, expWidth, sigWidth, false))
-  subf.ce := oehb.dataIn.ready
+  val ce = RegNext(oehb.dataIn.ready)
+  subf.ce := ce
   subf.operand0 := operand0.bits
   subf.operand1 := operand1.bits
   result.bits := subf.result
@@ -312,7 +327,8 @@ class CmpFDynamic(latency: Int, expWidth: Int, sigWidth: Int)(opcode: UInt) exte
 
   val subf = Module(new CmpFBase(latency, expWidth, sigWidth))
   subf.opcode := opcode
-  subf.ce := oehb.dataIn.ready
+  val ce = RegNext(oehb.dataIn.ready)
+  subf.ce := ce
   subf.operand0 := operand0.bits
   subf.operand1 := operand1.bits
   result.bits := subf.result
@@ -338,7 +354,8 @@ class IntToFloatDynamic(latency: Int, intWidth: Int, expWidth: Int, sigWidth: In
   result.valid := oehb.dataOut.valid
 
   val subf = Module(new IntToFloatBase(latency, intWidth, expWidth, sigWidth, true))
-  subf.ce := oehb.dataIn.ready
+  val ce = RegNext(oehb.dataIn.ready)
+  subf.ce := ce
   subf.operand := operand.bits
   result.bits := subf.result
 }
@@ -363,7 +380,8 @@ class FloatToIntDynamic(latency: Int, intWidth: Int, expWidth: Int, sigWidth: In
   result.valid := oehb.dataOut.valid
 
   val subf = Module(new FloatToIntBase(latency, intWidth, expWidth, sigWidth, true))
-  subf.ce := oehb.dataIn.ready
+  val ce = RegNext(oehb.dataIn.ready)
+  subf.ce := ce
   subf.operand := operand.bits
   result.bits := subf.result
 }
@@ -394,7 +412,8 @@ class DivFDynamic(latency: Int, expWidth: Int, sigWidth: Int) extends MultiIOMod
   result.valid := oehb.dataOut.valid
 
   val divf = Module(new DivFBase(latency, expWidth, sigWidth))
-  divf.ce := oehb.dataIn.ready
+  val ce = RegNext(oehb.dataIn.ready)
+  divf.ce := ce
   divf.operand0 := operand0.bits
   divf.operand1 := operand1.bits
   result.bits := divf.result
