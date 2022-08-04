@@ -15,7 +15,7 @@ import java.lang.Float.{floatToIntBits, intBitsToFloat}
 import java.lang.Double.{doubleToLongBits, longBitsToDouble}
 
 object Elaborate extends App {
-  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new stencil())))
+  (new chisel3.stage.ChiselStage).execute(args, Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new push_hybrid())))
 }
 
 trait dynamicDelay {
@@ -244,6 +244,42 @@ object TestAelossPush extends ChiselUtestTester {
 
   val tests = Tests {
     test("aeloss_push") {
+      testCircuit(
+        new PushWrapper,
+        //Seq(WriteVcdAnnotation, VerilatorBackendAnnotation),
+        Seq(WriteVcdAnnotation, VerilatorBackendAnnotation),
+        //        Seq(VerilatorBackendAnnotation)
+      ) { dut =>
+        dut.clock.setTimeout(2000000)
+        fork {
+          dut.var0.valid.poke(true.B)
+          dut.clock.step()
+          } fork {
+            dut.clock.step(2000000)
+          } join()
+      }
+    }
+  }
+}
+
+object TestPushHybrid extends ChiselUtestTester {
+  class PushWrapper extends MultiIOModule with dynamicDelay {
+    val var0 = IO(Flipped(DecoupledIO(UInt(0.W))))
+    val var1 = IO(DecoupledIO(UInt(64.W)))
+    val var2 = IO(DecoupledIO(UInt(0.W)))
+
+    val main = Module(new push_hybrid)
+
+    val finish = IO(Input(Bool()))
+    main.finish := finish
+
+    connection(var0, main.var99)
+    connection_inverse(var1, main.var100)
+    connection_inverse(var2, main.var101)
+  }
+
+  val tests = Tests {
+    test("push_hybrid") {
       testCircuit(
         new PushWrapper,
         //Seq(WriteVcdAnnotation, VerilatorBackendAnnotation),

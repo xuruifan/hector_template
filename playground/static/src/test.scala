@@ -112,9 +112,14 @@ object TestAelossPull extends ChiselUtestTester {
           dut.go.poke(true.B)
           dut.clock.step();
         }.fork {
+          var cycle_num = 0
           while (!dut.done.peek.litToBoolean) {
             dut.clock.step();
+            cycle_num += 1
           }
+          val result = dut.result.peek()
+          val fpresult = longBitsToDouble(result.litValue().toLong)
+          println("cycle: %d, push: %.6f\n".format(cycle_num, fpresult))
         }.join()
       }
     }
