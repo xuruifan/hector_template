@@ -151,8 +151,9 @@ class MulIDynamic(width: Int = 32, latency: Int = 4) extends MultiIOModule {
 
   val muli = Module(new MulI(width, latency))
   //  val muli = Module(new MulI(width, latency))
-  val ce = RegNext(oehb.dataIn.ready)
-  muli.ce := ce
+  //val ce = RegNext(oehb.dataIn.ready)
+  //muli.ce := ce
+  muli.ce := oehb.dataIn.ready
   muli.operand0 := operand0.bits
   muli.operand1 := operand1.bits
   result.bits := muli.result
